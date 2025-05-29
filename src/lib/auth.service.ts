@@ -85,17 +85,17 @@ export async function loginUser(email: string, passwordAttempt: string, role: Us
     });
 
     if (!user) {
-      return { success: false, message: 'Invalid email or password.' };
+      return { success: false, message: 'User not found.' };
     }
 
     if (user.role !== role) {
-        return { success: false, message: `Incorrect role selected for this user. Expected ${user.role}.` };
+        return { success: false, message: `Incorrect role selected. Expected ${user.role}, but got ${role}.` };
     }
 
     const isPasswordValid = await bcrypt.compare(passwordAttempt, user.password);
 
     if (!isPasswordValid) {
-      return { success: false, message: 'Invalid email or password.' };
+      return { success: false, message: 'Incorrect password.' };
     }
     
     // Do not send password back, even the hash
@@ -117,3 +117,4 @@ export async function loginUser(email: string, passwordAttempt: string, role: Us
     return { success: false, message: 'Login failed. Please try again.', error };
   }
 }
+
