@@ -1,76 +1,52 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Stethoscope, Users, CalendarDays, Brain } from "lucide-react";
-import Link from "next/link";
+
+import { LoginForm } from '@/components/auth/LoginForm';
+import { Stethoscope } from 'lucide-react';
+import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/30 p-4">
-      <header className="text-center mb-12">
-        <div className="inline-flex items-center justify-center p-3 bg-primary rounded-full mb-6 shadow-lg">
-          <Stethoscope className="h-16 w-16 text-primary-foreground" />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-background to-secondary/30 p-4">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px] bg-card p-8 rounded-xl shadow-2xl">
+        <div className="flex flex-col space-y-2 text-center">
+          <div className="mx-auto p-3 bg-primary rounded-full mb-4 inline-block">
+            <Stethoscope className="h-10 w-10 text-primary-foreground" />
+          </div>
+          <h1 className="text-3xl font-semibold tracking-tight text-primary">
+            MediView Hub Login
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Select your role and enter your credentials.
+          </p>
         </div>
-        <h1 className="text-5xl font-bold text-primary mb-2">MediView Hub</h1>
-        <p className="text-xl text-foreground/80">
-          Your Comprehensive Patient Management Solution.
+        <LoginForm />
+        <p className="px-8 text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{' '}
+          <Link
+            href="/register"
+            className="underline underline-offset-4 hover:text-primary"
+          >
+            Register here
+          </Link>
+          .
         </p>
-      </header>
-
-      <main className="grid md:grid-cols-2 gap-8 max-w-4xl w-full mb-12">
-        <FeatureCard
-          icon={<Users className="h-8 w-8 text-accent" />}
-          title="Patient Management"
-          description="Securely manage patient profiles, medical history, and more."
-        />
-        <FeatureCard
-          icon={<CalendarDays className="h-8 w-8 text-accent" />}
-          title="Appointment Scheduling"
-          description="Efficiently schedule and track patient appointments with an intuitive calendar."
-        />
-        <FeatureCard
-          icon={<Brain className="h-8 w-8 text-accent" />}
-          title="AI-Assisted Diagnosis"
-          description="Leverage AI to get suggestions for diagnoses based on patient data."
-        />
-         <FeatureCard
-          icon={<Stethoscope className="h-8 w-8 text-accent" />}
-          title="DICOM Viewing"
-          description="Upload and view DICOM studies seamlessly within patient records."
-        />
-      </main>
-
-      <Link href="/dashboard">
-        <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-md">
-          Access Dashboard
-        </Button>
-      </Link>
-
-      <footer className="mt-16 text-center text-muted-foreground text-sm">
-        <p>&copy; {new Date().getFullYear()} MediView Hub. All rights reserved.</p>
-        <p>Designed for medical professionals by medical professionals.</p>
-      </footer>
+        <p className="px-8 text-center text-sm text-muted-foreground mt-2">
+          By continuing, you agree to our{' '}
+          <a
+            href="/terms" // Placeholder link
+            className="underline underline-offset-4 hover:text-primary"
+          >
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a
+            href="/privacy" // Placeholder link
+            className="underline underline-offset-4 hover:text-primary"
+          >
+            Privacy Policy
+          </a>
+          .
+        </p>
+      </div>
     </div>
-  );
-}
-
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
-
-function FeatureCard({ icon, title, description }: FeatureCardProps) {
-  return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <CardHeader className="items-center">
-        <div className="p-3 rounded-full bg-accent/10 mb-2">
-            {icon}
-        </div>
-        <CardTitle className="text-primary">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-center text-foreground/70">{description}</p>
-      </CardContent>
-    </Card>
   );
 }
