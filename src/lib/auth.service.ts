@@ -3,8 +3,8 @@
 
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import type { User, UserRole } from '@/types'; // Assuming UserRole is defined in your types
-import type { RegisterFormValuesNoConfirm } from '@/components/auth/RegisterForm'; // We'll define this type later
+import type { UserRole } from '@/types'; // Assuming UserRole is defined in your types
+import type { RegisterFormValuesNoConfirm } from '@/components/auth/RegisterForm'; 
 
 export interface AuthResponse {
   success: boolean;
@@ -78,7 +78,7 @@ export async function registerUser(data: RegisterFormValuesNoConfirm): Promise<A
 }
 
 
-export async function loginUser(email: string, password tentativo: string, role: UserRole): Promise<AuthResponse> {
+export async function loginUser(email: string, passwordAttempt: string, role: UserRole): Promise<AuthResponse> {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -92,7 +92,7 @@ export async function loginUser(email: string, password tentativo: string, role:
         return { success: false, message: `Incorrect role selected for this user. Expected ${user.role}.` };
     }
 
-    const isPasswordValid = await bcrypt.compare(password tentativo, user.password);
+    const isPasswordValid = await bcrypt.compare(passwordAttempt, user.password);
 
     if (!isPasswordValid) {
       return { success: false, message: 'Invalid email or password.' };
