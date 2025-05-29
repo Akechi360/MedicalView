@@ -17,9 +17,10 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical, ShieldAlert } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical, ShieldAlert, Loader2 } from 'lucide-react';
 import React from 'react';
 import type { UserRole } from '@/types';
+import { loginUser, type AuthResponse } from '@/lib/auth.service';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -29,13 +30,14 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-// Helper key for localStorage
 const USER_ROLE_KEY = 'currentUserRole';
+const USER_DATA_KEY = 'currentUserData'; // For storing user ID, name, email
 
 export function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -47,51 +49,52 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: LoginFormValues) {
-    console.log('Login data:', data);
-    
-    // Clear any previous role
+    setIsLoading(true);
     if (typeof window !== 'undefined') {
       localStorage.removeItem(USER_ROLE_KEY);
+      localStorage.removeItem(USER_DATA_KEY);
     }
 
-    if (data.email === 'godmode@mediview.com' && data.password === 's1st3m4s1' && data.role === 'ADMIN') {
+    const result: AuthResponse = await loginUser(data.email, data.password, data.role);
+
+    if (result.success && result.user) {
       toast({
-        title: 'Admin Login Successful (Placeholder)',
-        description: `Welcome, GodMode! Role: ${data.role}.`,
+        title: 'Login Successful',
+        description: `Welcome, ${result.user.name || result.user.email}! Role: ${result.user.role}.`,
       });
       if (typeof window !== 'undefined') {
-        localStorage.setItem(USER_ROLE_KEY, data.role);
-      }
-      router.push('/dashboard'); 
-    } else if (data.role === 'DOCTOR' || data.role === 'PATIENT') {
-      toast({
-        title: 'Login Submitted (Placeholder)',
-        description: `Role: ${data.role}. In a real app, authentication would occur here.`,
-      });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(USER_ROLE_KEY, data.role);
+        localStorage.setItem(USER_ROLE_KEY, result.user.role);
+        localStorage.setItem(USER_DATA_KEY, JSON.stringify(result.user)); // Store user data
       }
       router.push('/dashboard');
     } else {
        toast({
-        title: 'Login Failed (Placeholder)',
-        description: `Invalid credentials or role for ${data.email}.`,
+        title: 'Login Failed',
+        description: result.message || 'An unexpected error occurred.',
         variant: 'destructive',
       });
     }
+    setIsLoading(false);
   }
 
   const handleGoogleSignIn = () => {
-    toast({
-      title: 'Google Sign-In (Placeholder)',
-      description: 'This would initiate Google Sign-In flow.',
-    });
-    // Simulate successful login and redirect
-    // For demo, let's assume a 'PATIENT' role on Google Sign-In
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(USER_ROLE_KEY, 'PATIENT');
-    }
-    router.push('/dashboard');
+    setIsLoading(true);
+    // Placeholder for Google Sign-In logic.
+    // In a real app, this would involve Firebase or another OAuth provider.
+    // For now, simulate a PATIENT login.
+    setTimeout(() => {
+      toast({
+        title: 'Google Sign-In (Placeholder)',
+        description: 'This would initiate Google Sign-In flow. Simulating patient login.',
+      });
+      const mockPatientUser = { id: 'google-user', email: 'google.patient@example.com', name: 'Google Patient', role: 'PATIENT' as UserRole };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(USER_ROLE_KEY, 'PATIENT');
+        localStorage.setItem(USER_DATA_KEY, JSON.stringify(mockPatientUser));
+      }
+      router.push('/dashboard');
+      setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -112,7 +115,7 @@ export function LoginForm() {
                   >
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="DOCTOR" id="role-doctor" />
+                        <RadioGroupItem value="DOCTOR" id="role-doctor" disabled={isLoading} />
                       </FormControl>
                       <FormLabel htmlFor="role-doctor" className="font-normal flex items-center">
                         <BriefcaseMedical className="mr-2 h-4 w-4 text-primary" /> Doctor
@@ -120,7 +123,7 @@ export function LoginForm() {
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="PATIENT" id="role-patient" />
+                        <RadioGroupItem value="PATIENT" id="role-patient" disabled={isLoading}/>
                       </FormControl>
                       <FormLabel htmlFor="role-patient" className="font-normal flex items-center">
                         <User className="mr-2 h-4 w-4 text-primary" /> Patient
@@ -128,7 +131,7 @@ export function LoginForm() {
                     </FormItem>
                      <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
-                        <RadioGroupItem value="ADMIN" id="role-admin" />
+                        <RadioGroupItem value="ADMIN" id="role-admin" disabled={isLoading}/>
                       </FormControl>
                       <FormLabel htmlFor="role-admin" className="font-normal flex items-center">
                         <ShieldAlert className="mr-2 h-4 w-4 text-destructive" /> Admin
@@ -149,7 +152,7 @@ export function LoginForm() {
                 <FormControl>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="name@example.com" {...field} className="pl-10" />
+                    <Input placeholder="name@example.com" {...field} className="pl-10" disabled={isLoading}/>
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -170,6 +173,7 @@ export function LoginForm() {
                       placeholder="••••••••" 
                       {...field} 
                       className="pl-10 pr-10"
+                      disabled={isLoading}
                     />
                     <Button
                       type="button"
@@ -178,6 +182,7 @@ export function LoginForm() {
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? "Hide password" : "Show password"}
+                      disabled={isLoading}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
@@ -187,8 +192,9 @@ export function LoginForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-            Sign In
+          <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </Button>
         </form>
       </Form>
@@ -202,7 +208,8 @@ export function LoginForm() {
           </span>
         </div>
       </div>
-      <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+      <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
+         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
           <path
             fill="currentColor"

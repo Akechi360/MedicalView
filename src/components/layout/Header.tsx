@@ -12,25 +12,50 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-// import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // Not used directly here anymore
 import { SidebarTrigger } from '@/components/ui/sidebar';
-// import { navItems } from '@/constants/navigation'; // Not used directly
 import { Menu, Search, UserCircle, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation'; // Added useRouter
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import React, { useEffect, useState } from 'react';
 
 const USER_ROLE_KEY = 'currentUserRole';
+const USER_DATA_KEY = 'currentUserData';
+
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const [userName, setUserName] = useState<string>("User");
+  const [userInitial, setUserInitial] = useState<string>("U");
+
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUserData = localStorage.getItem(USER_DATA_KEY);
+      if (storedUserData) {
+        try {
+          const userData = JSON.parse(storedUserData);
+          const name = userData.name || userData.email || "User";
+          setUserName(name);
+          setUserInitial(name.charAt(0).toUpperCase());
+        } catch (e) {
+          console.error("Failed to parse user data from localStorage", e);
+          setUserName("User");
+          setUserInitial("U");
+        }
+      } else {
+        setUserName("User");
+        setUserInitial("U");
+      }
+    }
+  }, [pathname]); // Re-run on pathname change to update if user logs in/out
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(USER_ROLE_KEY);
+      localStorage.removeItem(USER_DATA_KEY);
     }
-    // Optionally, update any global state if you have one
     router.push('/login');
   };
 
@@ -56,30 +81,33 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
               <Avatar>
-                <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="user avatar"/>
-                <AvatarFallback>MV</AvatarFallback>
+                {/* In a real app, src would be dynamic */}
+                <AvatarImage src={`https://placehold.co/40x40.png?text=${userInitial}`} alt={userName} data-ai-hint="user avatar"/>
+                <AvatarFallback>{userInitial}</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>My Account ({userName})</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <UserCircle className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+            <DropdownMenuItem asChild>
+              <Link href="/profile"> {/* Placeholder link */}
+                <UserCircle className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+            <DropdownMenuItem asChild>
+              <Link href="/settings"> {/* Placeholder link */}
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {/* <Link href="/login"> */}
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            {/* </Link> */}
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Logout</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

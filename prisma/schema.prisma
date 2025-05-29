@@ -1,17 +1,68 @@
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL_PLACEHOLDER_MEDIVIEW_HUB")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL_PLACEHOLDER_MEDIVIEW_HUB")
+  relationMode = "prisma"
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
+enum UserRole {
   DOCTOR
   PATIENT
-  ADMIN // Kept for potential future use
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // Will store hashed password, no longer optional
+  fullName  String?
+  role      UserRole
+  specialty String? // For doctors
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patientProfile Patient? // Relation to Patient profile if role is PATIENT
+  doctorAppointments Appointment[] @relation("DoctorAppointments") // Appointments where this user is the doctor
+  patientAppointments Appointment[] @relation("PatientAppointments") // Appointments where this user is the patient (if patient user linked)
+  createdPatients Patient[] @relation("CreatedByDoctor") // Patients created by this doctor
+  medicalRecordsAuthored MedicalRecordEntry[] @relation("AuthoredByDoctor")
+  
+  @@index([email])
+}
+
+model Patient {
+  id        String   @id @default(cuid())
+  userId    String?  @unique // Link to User account if patient has one
+  user      User?    @relation(fields: [userId], references: [id])
+
+  fullName  String
+  dateOfBirth DateTime
+  gender    Gender
+  nationalId String? @unique
+  contactPhone String?
+  contactEmail String?
+  address   String?
+  allergies String?
+  currentMedications String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById String? // Doctor User ID who created the patient
+  createdBy   User?   @relation("CreatedByDoctor", fields: [createdById], references: [id])
+
+  appointments Appointment[] @relation("PatientAppointmentsThroughProfile")
+  medicalHistory MedicalRecordEntry[]
+  labResults LabResult[]
+  dicomStudies DicomStudy[]
+
+  @@index([fullName])
+  @@index([nationalId])
 }
 
 enum Gender {
@@ -28,126 +79,100 @@ enum AppointmentStatus {
   RESCHEDULED
 }
 
-model User {
-  id        String @id @default(cuid())
-  email     String @unique
-  name      String?
-  password  String // Store hashed passwords in a real application
-  role      Role   @default(PATIENT)
-  specialty String? // Only for DOCTORs
-
-  // For DOCTOR role
-  createdPatients         Patient[]            @relation("CreatedByDoctor")
-  doctorAppointments      Appointment[]        @relation("DoctorAppointments")
-  doctorMedicalRecords    MedicalRecordEntry[] @relation("DoctorMedicalRecords")
-
-  // For PATIENT role
-  patientProfile          Patient?             @relation("PatientUserAccount")
-
+model Appointment {
+  id        String   @id @default(cuid())
+  dateTime  DateTime
+  durationMinutes Int
+  status    AppointmentStatus
+  
+  patientId String   // FK to Patient table (the actual patient profile)
+  patient   Patient  @relation("PatientAppointmentsThroughProfile", fields: [patientId], references: [id])
+  
+  doctorId  String   // FK to User table (where role is DOCTOR)
+  doctor    User     @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  
+  reason    String?
+  notes     String?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
 
-model Patient {
-  id                 String   @id @default(cuid())
-  userId             String?  @unique // Link to User account, if the patient is a registered user
-  user               User?    @relation("PatientUserAccount", fields: [userId], references: [id])
-  
-  fullName           String
-  dateOfBirth        DateTime
-  gender             Gender
-  nationalId         String?
-  contactPhone       String?
-  contactEmail       String? // Can be different from User.email if patient record created by doctor
-  address            String?
-  allergies          String?
-  currentMedications String?
-
-  createdById        String? // User ID of the doctor who created this patient record
-  createdBy          User?   @relation("CreatedByDoctor", fields: [createdById], references: [id])
-
-  appointments       Appointment[]
-  medicalHistory     MedicalRecordEntry[]
-  labResults         LabResult[]
-  dicomStudies       DicomStudy[]
-
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-}
-
-model Appointment {
-  id              String            @id @default(cuid())
-  dateTime        DateTime
-  durationMinutes Int
-  status          AppointmentStatus
-  reason          String?
-  notes           String?
-
-  patientId       String
-  patient         Patient @relation(fields: [patientId], references: [id])
-
-  doctorId        String
-  doctor          User   @relation("DoctorAppointments", fields: [doctorId], references: [id])
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  @@index([dateTime])
+  @@index([patientId])
+  @@index([doctorId])
 }
 
 model MedicalRecordEntry {
-  id                      String    @id @default(cuid())
-  visitDate               DateTime
-  reasonForConsultation   String
-  diagnosis               String?
-  treatment               String?
-  notes                   String?
-  // attachments functionality would require more complex handling, e.g. storing URLs to files
-
-  patientId               String
-  patient                 Patient @relation(fields: [patientId], references: [id])
-
-  doctorId                String
-  doctor                  User    @relation("DoctorMedicalRecords", fields: [doctorId], references: [id])
+  id        String   @id @default(cuid())
+  visitDate DateTime
+  reasonForConsultation String
+  diagnosis String?
+  treatment String?
+  notes     String?
   
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  patientId String   // FK to Patient table
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  
+  doctorId  String   // FK to User table (where role is DOCTOR)
+  doctor    User     @relation("AuthoredByDoctor", fields: [doctorId], references: [id])
+  
+  attachments Json? // Store array of Attachment objects
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  labResults LabResult[] // Lab results associated with this medical entry
+  dicomStudies DicomStudy[] // DICOM studies associated with this medical entry
+
+  @@index([visitDate])
+  @@index([patientId])
+  @@index([doctorId])
 }
 
 model LabResult {
-  id                 String   @id @default(cuid())
-  testName           String
-  date               DateTime
-  values             String? // Could be JSON string
-  units              String?
-  referenceRange     String?
-  interpretation     String?
-  // attachments
-
-  patientId          String
-  patient            Patient @relation(fields: [patientId], references: [id])
+  id            String   @id @default(cuid())
+  testName      String
+  date          DateTime
+  values        String?
+  units         String?
+  referenceRange String?
+  interpretation String?
   
-  medicalRecordEntryId String? // Optional: Link to a specific medical record entry
-  // medicalRecordEntry MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
+  patientId String   // FK to Patient table
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  
+  medicalRecordEntryId String? // Optional link to a specific medical record entry
+  medicalRecordEntry   MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  attachments   Json? // Store array of Attachment objects
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+  @@index([patientId])
 }
 
 model DicomStudy {
-  id                  String   @id @default(cuid())
-  studyDate           DateTime
-  description         String?
-  storageUrl          String   // URL to the DICOM file in cloud storage
-  previewImageUrl     String?
-  seriesCount         Int?
-  instanceCount       Int?
-  modality            String?
+  id            String   @id @default(cuid())
+  studyDate     DateTime
+  description   String?
+  
+  patientId     String   // FK to Patient table
+  patient       Patient  @relation(fields: [patientId], references: [id])
+  
+  medicalRecordEntryId String? // Optional link to a specific medical record entry
+  medicalRecordEntry MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
+  
+  storageUrl    String   // URL or path to the DICOM file/study
+  previewImageUrl String?
+  seriesCount   Int?
+  instanceCount Int?
+  modality      String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  patientId           String
-  patient             Patient @relation(fields: [patientId], references: [id])
-
-  medicalRecordEntryId String? // Optional: Link to a specific medical record entry
-  // medicalRecordEntry  MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
-
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  @@index([studyDate])
+  @@index([patientId])
 }
