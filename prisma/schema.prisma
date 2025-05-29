@@ -1,0 +1,221 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // The URL should ideally come from an environment variable
+  // For now, a placeholder is used. Replace with your actual connection string.
+  url      = env("DATABASE_URL_PLACEHOLDER_MEDIVIEW_HUB")
+}
+
+// User model for Doctors and potentially Admins
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  passwordHash  String // Store hashed passwords, never plain text
+  name          String?
+  specialty     String?
+  contactInfo   String?       // e.g., phone number or office details
+  role          UserRole      @default(DOCTOR)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  // Relationships
+  createdPatients Patient[] @relation("CreatedByDoctor") // Patients created by this doctor
+  appointments    Appointment[] // Appointments assigned to this doctor
+  medicalRecords  MedicalRecordEntry[] // Medical records created by this doctor
+
+  @@index([email])
+  @@map("users") // Maps to the "users" table in the database
+}
+
+enum UserRole {
+  ADMIN
+  DOCTOR
+}
+
+// Patient model
+model Patient {
+  id                  String        @id @default(cuid())
+  fullName            String
+  dateOfBirth         DateTime
+  gender              Gender
+  nationalId          String?       @unique // DNI/Identification, unique if present
+  contactPhone        String?
+  contactEmail        String?
+  address             String?
+  allergies           String?       // Text field, consider JSON for structured data if needed
+  currentMedications  String?       // Text field, consider JSON for structured data if needed
+  
+  createdById         String?       // Foreign key to User (Doctor) who created the patient
+  createdBy           User?         @relation("CreatedByDoctor", fields: [createdById], references: [id])
+  
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relationships
+  appointments        Appointment[]
+  medicalHistory      MedicalRecordEntry[]
+  labResults          LabResult[]
+  dicomStudies        DicomStudy[]
+
+  @@index([fullName])
+  @@index([nationalId])
+  @@map("patients")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+// Appointment model
+model Appointment {
+  id                String            @id @default(cuid())
+  dateTime          DateTime          // Date and time of the appointment
+  durationMinutes   Int               // Duration in minutes
+  status            AppointmentStatus @default(SCHEDULED)
+  reason            String?           // Reason for the appointment
+  notes             String?           // Notes related to the appointment
+
+  patientId         String
+  patient           Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade) // Link to Patient
+
+  doctorId          String
+  doctor            User              @relation(fields: [doctorId], references: [id]) // Link to User (Doctor)
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([dateTime])
+  @@index([patientId])
+  @@index([doctorId])
+  @@map("appointments")
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELED
+  RESCHEDULED
+  NO_SHOW
+}
+
+// Medical Record Entry model (for history and notes)
+model MedicalRecordEntry {
+  id                      String    @id @default(cuid())
+  visitDate               DateTime
+  reasonForConsultation   String
+  diagnosis               String?
+  treatment               String?
+  notes                   String?   // Detailed clinical notes
+  
+  attachments             Json?     // Store as JSON: [{ name: "report.pdf", url: "gs://...", type: "pdf" }]
+
+  patientId               String
+  patient                 Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  doctorId                String    // Doctor who created this entry
+  doctor                  User      @relation(fields: [doctorId], references: [id])
+
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  
+  // Relationships
+  labResults              LabResult[] // Lab results associated with this medical entry
+  dicomStudies            DicomStudy[] // DICOM studies associated with this medical entry
+
+  @@index([visitDate])
+  @@index([patientId])
+  @@index([doctorId])
+  @@map("medical_record_entries")
+}
+
+// Lab Result model
+model LabResult {
+  id                    String    @id @default(cuid())
+  testName              String
+  date                  DateTime  // Date the test was performed or results received
+  values                String?   // Could be simple string or JSON for structured values
+  units                 String?
+  referenceRange        String?   // e.g., "0.5 - 4.5 mIU/L"
+  interpretation        String?   // Doctor's interpretation or notes on the result
+  
+  attachments           Json?     // Store as JSON: [{ name: "lab_report.pdf", url: "gs://...", type: "pdf" }]
+
+  patientId             String
+  patient               Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  medicalRecordEntryId  String?   // Optional: Link to a specific medical record entry/visit
+  medicalRecordEntry    MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([date])
+  @@index([patientId])
+  @@index([medicalRecordEntryId])
+  @@map("lab_results")
+}
+
+// DICOM Study model
+model DicomStudy {
+  id                    String    @id @default(cuid())
+  studyDate             DateTime
+  description           String?   // e.g., "Chest X-Ray PA and Lateral"
+  modality              String?   // e.g., "CT", "MR", "XA", "CR"
+  seriesCount           Int?
+  instanceCount         Int?      // Total number of images/instances in the study
+  
+  storageUrl            String    // URL to the DICOM file/folder in Cloud Storage
+  previewImageUrl       String?   // Optional URL for a web-friendly preview (e.g., JPEG/PNG)
+
+  patientId             String
+  patient               Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  medicalRecordEntryId  String?   // Optional: Link to a specific medical record entry/visit
+  medicalRecordEntry    MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([studyDate])
+  @@index([patientId])
+  @@index([medicalRecordEntryId])
+  @@map("dicom_studies")
+}
+
+// Audit Log model (Basic example)
+model AuditLog {
+  id          String    @id @default(cuid())
+  timestamp   DateTime  @default(now())
+  userId      String    // ID of the user performing the action
+  action      String    // e.g., "CREATE_PATIENT", "VIEW_MEDICAL_RECORD"
+  entityType  String?   // e.g., "Patient", "MedicalRecordEntry"
+  entityId    String?   // ID of the affected entity
+  details     Json?     // Additional details about the action (e.g., changed fields)
+
+  @@index([timestamp])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+// Comments explaining design decisions or complex relationships:
+// - `onDelete: Cascade` is used on `Patient` relations to ensure that if a patient is deleted,
+//   their associated appointments, medical records, lab results, and DICOM studies are also deleted.
+//   This might need to be adjusted based on data retention policies (e.g., soft delete or archiving).
+// - `Json?` type for `attachments` allows storing an array of attachment objects with flexible metadata.
+// - `createdById` on `Patient` tracks which doctor initially created the patient record.
+// - `medicalRecordEntryId` on `LabResult` and `DicomStudy` provides an optional link to a specific visit,
+//   allowing studies/results to be associated with a broader patient record or a particular encounter.
+// - The `AuditLog` model is a basic starting point. For production, it would need more robust fields
+//   and potentially integration with specialized logging services.
+// - `passwordHash` in the `User` model emphasizes that passwords should be stored securely (hashed).
+// - `nationalId` on `Patient` is marked as unique if present, allowing for optional entry but ensuring uniqueness if provided.

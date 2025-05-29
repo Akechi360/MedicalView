@@ -1,0 +1,120 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is a doctor
+    function isDoctor() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'DOCTOR';
+    }
+
+    // Helper function to check if user is an admin
+    function isAdmin() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+    }
+    
+    // Helper function to check if a doctor owns a specific patient record (either created it or is assigned)
+    // This is a simplified example; real-world scenarios might involve group permissions or explicit assignments.
+    function isOwnerOfPatient(patientId) {
+      let patientResource = get(/databases/$(database)/documents/patients/$(patientId));
+      // Allow if doctor created the patient or is assigned to an appointment with the patient
+      // This part (`isAssignedToAppointment`) is conceptual and would require checking appointments.
+      // For simplicity, we'll rely on `createdById` for now or direct doctor assignment to patient.
+      return patientResource.data.createdById == request.auth.uid || 
+             isAdmin(); // Admins can access all patients for administrative purposes.
+             // In a real app, you'd also check if the doctor is part of a practice that "owns" the patient,
+             // or if the patient is explicitly assigned to the doctor.
+    }
+
+    // Users (Doctors' profiles)
+    match /users/{userId} {
+      // Doctors can read their own profile. Admins can read any profile.
+      allow get: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      // Doctors can update their own profile. Admins can update any profile.
+      // New user creation (registration) would typically be handled by a Cloud Function.
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin())
+                    && request.resource.data.email == resource.data.email // Email cannot be changed after creation
+                    && (!('role' in request.resource.data) || request.resource.data.role == resource.data.role || isAdmin()); // Role can only be changed by admin
+      allow create: if isAdmin(); // Only admins can create user profiles directly (e.g. for other doctors)
+                                  // User self-registration is usually a separate flow.
+      allow delete: if isAdmin(); // Only admins can delete user profiles.
+    }
+
+    // Patients
+    match /patients/{patientId} {
+      // Doctors can read patients they own. Admins can read all patients.
+      allow get: if isDoctor() && isOwnerOfPatient(patientId) || isAdmin();
+      // Doctors can create new patients, assigning themselves as createdBy.
+      allow create: if isDoctor() && request.resource.data.createdById == request.auth.uid;
+      // Doctors can update patients they own. Admins can update all patients.
+      // Ensure createdById is not changed by non-admins.
+      allow update: if (isDoctor() && isOwnerOfPatient(patientId) && request.resource.data.createdById == resource.data.createdById) || isAdmin();
+      // Deletion might be restricted or handled by admins only.
+      allow delete: if isAdmin() || (isDoctor() && isOwnerOfPatient(patientId)); // Or more restrictive
+      
+      // Subcollections for patient data
+      match /medicalHistory/{recordId} {
+        allow read, write: if isDoctor() && isOwnerOfPatient(patientId) || isAdmin();
+        // Write (create, update, delete) rules:
+        // - Doctor must be owner of the patient.
+        // - On create, doctorId in record must match authenticated user.
+        // - On update, doctorId cannot be changed unless by admin.
+        allow create: if (isDoctor() && isOwnerOfPatient(patientId) && request.resource.data.doctorId == request.auth.uid) || isAdmin();
+        allow update: if (isDoctor() && isOwnerOfPatient(patientId) && request.resource.data.doctorId == resource.data.doctorId) || isAdmin();
+        allow delete: if (isDoctor() && isOwnerOfPatient(patientId)) || isAdmin();
+
+      }
+      match /labResults/{resultId} {
+        allow read, write: if isDoctor() && isOwnerOfPatient(patientId) || isAdmin();
+        allow create: if (isDoctor() && isOwnerOfPatient(patientId)) || isAdmin(); // Simplified for now
+        allow update, delete: if (isDoctor() && isOwnerOfPatient(patientId)) || isAdmin();
+      }
+      match /dicomStudies/{studyId} {
+        allow read, write: if isDoctor() && isOwnerOfPatient(patientId) || isAdmin();
+        allow create: if (isDoctor() && isOwnerOfPatient(patientId)) || isAdmin();
+        allow update, delete: if (isDoctor() && isOwnerOfPatient(patientId)) || isAdmin();
+      }
+    }
+
+    // Appointments
+    match /appointments/{appointmentId} {
+      // Doctors can read/write appointments they are assigned to, or related to patients they own.
+      // Admins can manage all appointments.
+      // This needs careful thought: who can see whose appointments?
+      // Example: Doctor can see their own appointments. Patients (if they had app access) could see their own.
+      function isRelatedToAppointment() {
+        let appointment = resource.data; // For existing doc
+        let incomingAppointment = request.resource.data; // For new/updated doc
+        
+        // Check if doctor is assigned to this appointment
+        return (appointment != null && appointment.doctorId == request.auth.uid) ||
+               (incomingAppointment != null && incomingAppointment.doctorId == request.auth.uid) ||
+               // Or if the appointment is for a patient the doctor owns
+               (appointment != null && isOwnerOfPatient(appointment.patientId)) ||
+               (incomingAppointment != null && isOwnerOfPatient(incomingAppointment.patientId));
+      }
+      
+      allow read: if (isDoctor() && isRelatedToAppointment()) || isAdmin();
+      allow create: if (isDoctor() && request.resource.data.doctorId == request.auth.uid) || isAdmin(); // Doctor schedules for themselves or admin schedules.
+      allow update: if (isDoctor() && isRelatedToAppointment()) || isAdmin();
+      allow delete: if (isDoctor() && isRelatedToAppointment()) || isAdmin();
+    }
+    
+    // Audit Logs - Typically write-only for specific service accounts or backend functions. Read by Admins.
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated(); // Or restrict to specific backend roles/functions
+      allow update, delete: if false; // Logs should be immutable
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to get user role (assuming role is stored in Firestore user document custom claims or Firestore user doc)
+    // This example assumes checking a Firestore document for simplicity.
+    // In production, custom claims might be more efficient for role checking in Storage rules.
+    function getUserRole() {
+      return get(/databases/(default)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isDoctor() {
+      return isAuthenticated() && getUserRole() == 'DOCTOR';
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'ADMIN';
+    }
+
+    // Files for patient records (reports, lab results images, etc.)
+    // Path: patients/{patientId}/medical_attachments/{filename}
+    // - Only the doctor associated with the patient (or admin) can upload/read/delete.
+    // - `patientId` in the path should match a patient the doctor has access to.
+    match /patients/{patientId}/medical_attachments/{filename} {
+      // Accessing patient data ownership for storage rules is complex as it requires Firestore reads.
+      // A common pattern is to embed `request.auth.uid` in the path if files are user-specific,
+      // or use custom claims to check ownership if the patientId itself isn't enough.
+      // For this example, we'll assume a simplified check.
+      // In a real app, you might use custom claims like `request.auth.token.patient_access[patientId] == true`
+      // set by a Cloud Function upon establishing a doctor-patient relationship.
+
+      // Allow read if user is a doctor or admin. More specific ownership checks are needed.
+      allow read: if isDoctor() || isAdmin(); 
+      // Allow write (create, update, delete) if user is a doctor or admin.
+      // Filename validation, size checks, and content type checks are important here.
+      allow write: if (isDoctor() || isAdmin())
+                    && request.resource.size < 10 * 1024 * 1024 // Max 10MB per file
+                    && (request.resource.contentType.matches('application/pdf') ||
+                        request.resource.contentType.matches('image/jpeg') ||
+                        request.resource.contentType.matches('image/png') ||
+                        request.resource.contentType.matches('text/plain'));
+    }
+
+    // DICOM files
+    // Path: patients/{patientId}/dicom_studies/{studyId}/{filename_or_series_folder}
+    // - Similar ownership rules as medical_attachments.
+    // - DICOM files can be large, so size limits might be different or handled via resumable uploads.
+    match /patients/{patientId}/dicom_studies/{allPaths=**} { // Allow subfolders for series
+      allow read: if isDoctor() || isAdmin(); // Simplified ownership
+      allow write: if (isDoctor() || isAdmin())
+                    && request.resource.size < 500 * 1024 * 1024 // Max 500MB per DICOM object part (resumable uploads handle larger files)
+                    && (request.resource.contentType.matches('application/dicom') || 
+                        request.resource.contentType.matches('application/octet-stream') || // Common for DICOM
+                        request.resource.contentType == null); // Sometimes DICOM uploads have no content type initially
+    }
+
+    // User profile pictures (if any)
+    // Path: users/{userId}/profile/{filename}
+    match /users/{userId}/profile/{filename} {
+      allow read: if true; // Profile pictures are often public or readable by authenticated users.
+      allow write: if isAuthenticated() && request.auth.uid == userId // User can update their own profile picture
+                    && request.resource.size < 2 * 1024 * 1024 // Max 2MB
+                    && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
