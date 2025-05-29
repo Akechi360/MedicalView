@@ -16,7 +16,7 @@ export default function DashboardPage() {
           title="Patients"
           description="Manage patient records and medical histories."
           icon={<Users className="h-6 w-6 text-primary" />}
-          value="120" // Placeholder
+          value="0" // Mock data removed
           footerText="View All Patients"
           link="/patients"
         />
@@ -24,7 +24,7 @@ export default function DashboardPage() {
           title="Appointments"
           description="View and schedule upcoming appointments."
           icon={<CalendarDays className="h-6 w-6 text-primary" />}
-          value="15 Today" // Placeholder
+          value="0 Today" // Mock data removed
           footerText="Go to Calendar"
           link="/appointments"
         />

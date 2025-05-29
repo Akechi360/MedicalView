@@ -9,45 +9,32 @@ import { format } from 'date-fns';
 // Placeholder fetch functions - replace with actual data fetching logic
 async function getPatientDetails(patientId: string): Promise<Patient | null> {
   console.log(`Fetching patient details for ID: ${patientId}`);
-  // Simulate API call
-  if (patientId === "error") return null; // Simulate not found
-  return {
-    id: patientId,
-    fullName: patientId === "1" ? 'Alice Wonderland' : `Patient ${patientId}`,
-    dateOfBirth: new Date('1990-05-15'),
-    gender: 'FEMALE',
-    nationalId: `ID-${patientId}XYZ`,
-    contactPhone: '555-1234',
-    contactEmail: `patient${patientId}@example.com`,
-    address: '123 Fantasy Lane, Storybook City',
-    allergies: 'Pollen, Aspirin',
-    currentMedications: 'Loratadine 10mg daily',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    createdById: 'doc123',
-  };
+  // Mock data removed, returning null to simulate not found or real fetch pending
+  return Promise.resolve(null);
 }
 
 async function getMedicalHistory(patientId: string): Promise<MedicalRecordEntry[]> {
   console.log(`Fetching medical history for patient ID: ${patientId}`);
-  return []; // Return empty for now
+  // Mock data removed
+  return Promise.resolve([]);
 }
 
 async function getLabResults(patientId: string): Promise<LabResult[]> {
   console.log(`Fetching lab results for patient ID: ${patientId}`);
-  return []; // Return empty for now
+  // Mock data removed
+  return Promise.resolve([]);
 }
 
 async function getDicomStudies(patientId: string): Promise<DicomStudy[]> {
   console.log(`Fetching DICOM studies for patient ID: ${patientId}`);
-  return []; // Return empty for now
+  // Mock data removed
+  return Promise.resolve([]);
 }
 
 
 export default async function PatientDetailPage({ params }: { params: { patientId: string } }) {
   const patient = await getPatientDetails(params.patientId);
   
-  // In a real app, you'd fetch these based on patientId
   const medicalHistory: MedicalRecordEntry[] = await getMedicalHistory(params.patientId);
   const labResults: LabResult[] = await getLabResults(params.patientId);
   const dicomStudies: DicomStudy[] = await getDicomStudies(params.patientId);

@@ -47,18 +47,18 @@ export function PatientDetailClient({
     const file = event.target.files?.[0];
     if (file) {
       toast({ title: "DICOM Uploaded (Placeholder)", description: `File: ${file.name}`});
-      // Simulate adding to list
-      const newStudy: DicomStudy = {
-        id: Math.random().toString(36).substring(7),
-        patientId: patient.id,
-        studyDate: new Date(),
-        description: file.name,
-        storageUrl: `placeholder/path/to/${file.name}`,
-        previewImageUrl: `https://placehold.co/200x200.png?text=${file.name.substring(0,3)}`,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setDicomStudies(prev => [newStudy, ...prev]);
+      // Simulate adding to list - removed as per request to eliminate mocks
+      // const newStudy: DicomStudy = {
+      //   id: Math.random().toString(36).substring(7),
+      //   patientId: patient.id,
+      //   studyDate: new Date(),
+      //   description: file.name,
+      //   storageUrl: `placeholder/path/to/${file.name}`,
+      //   previewImageUrl: `https://placehold.co/200x200.png?text=${file.name.substring(0,3)}`,
+      //   createdAt: new Date(),
+      //   updatedAt: new Date(),
+      // };
+      // setDicomStudies(prev => [newStudy, ...prev]); // Mock behavior removed
     }
   };
 
@@ -293,4 +293,3 @@ function DicomStudyCard({ study }: { study: DicomStudy }) {
     </Card>
   );
 }
-

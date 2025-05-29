@@ -7,22 +7,8 @@ import { Button } from '@/components/ui/button';
 // Placeholder fetch function
 async function getPatientDetails(patientId: string): Promise<Patient | null> {
   console.log(`Fetching patient details for editing ID: ${patientId}`);
-  if (patientId === "error") return null;
-  return {
-    id: patientId,
-    fullName: patientId === "1" ? 'Alice Wonderland' : `Patient ${patientId} To Edit`,
-    dateOfBirth: new Date('1990-05-15'),
-    gender: 'FEMALE',
-    nationalId: `ID-${patientId}XYZ-EDIT`,
-    contactPhone: '555-0000',
-    contactEmail: `edit.patient${patientId}@example.com`,
-    address: '456 Edit Lane, Storybook City',
-    allergies: 'Dust',
-    currentMedications: 'Ibuprofen as needed',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    createdById: 'doc456',
-  };
+  // Mock data removed, returning null to simulate not found or real fetch pending
+  return Promise.resolve(null);
 }
 
 export default async function EditPatientPage({ params }: { params: { patientId: string } }) {
