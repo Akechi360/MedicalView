@@ -29,6 +29,9 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+// Helper key for localStorage
+const USER_ROLE_KEY = 'currentUserRole';
+
 export function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
@@ -39,28 +42,35 @@ export function LoginForm() {
     defaultValues: {
       email: '',
       password: '',
-      role: undefined, // Important for RadioGroup placeholder
+      role: undefined, 
     },
   });
 
   async function onSubmit(data: LoginFormValues) {
-    // Placeholder for actual login logic
     console.log('Login data:', data);
     
-    // Specific credentials for GodMode
+    // Clear any previous role
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(USER_ROLE_KEY);
+    }
+
     if (data.email === 'godmode@mediview.com' && data.password === 's1st3m4s1' && data.role === 'ADMIN') {
       toast({
         title: 'Admin Login Successful (Placeholder)',
         description: `Welcome, GodMode! Role: ${data.role}.`,
       });
-      // In a real app, set auth state here
-      // For now, we assume the AppSidebar/Dashboard will use a simulated role set to ADMIN
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(USER_ROLE_KEY, data.role);
+      }
       router.push('/dashboard'); 
     } else if (data.role === 'DOCTOR' || data.role === 'PATIENT') {
       toast({
         title: 'Login Submitted (Placeholder)',
         description: `Role: ${data.role}. In a real app, authentication would occur here.`,
       });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(USER_ROLE_KEY, data.role);
+      }
       router.push('/dashboard');
     } else {
        toast({
@@ -71,13 +81,16 @@ export function LoginForm() {
     }
   }
 
-  // Placeholder for Google Sign-In
   const handleGoogleSignIn = () => {
     toast({
       title: 'Google Sign-In (Placeholder)',
       description: 'This would initiate Google Sign-In flow.',
     });
     // Simulate successful login and redirect
+    // For demo, let's assume a 'PATIENT' role on Google Sign-In
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(USER_ROLE_KEY, 'PATIENT');
+    }
     router.push('/dashboard');
   };
 

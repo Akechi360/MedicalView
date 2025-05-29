@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Users, CalendarDays, Brain, FileText, UserCircle, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarDays, Brain, FileText, UserCircle, Settings, ShieldCheck, LogOut } from 'lucide-react';
 import type { UserRole } from '@/types';
 
 export interface NavItem {
@@ -8,7 +8,8 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   group?: string;
-  roles?: UserRole[]; // Which roles can see this item. If undefined, all roles.
+  roles?: UserRole[]; 
+  isFooter?: boolean; // To distinguish footer items like logout
 }
 
 const allNavItems: NavItem[] = [
@@ -25,12 +26,12 @@ const allNavItems: NavItem[] = [
   },
   {
     href: '/appointments',
-    label: 'Appointments', // For doctors, it's all appointments. For patients, it would be filtered.
+    label: 'Appointments',
     icon: CalendarDays,
+    roles: ['DOCTOR', 'PATIENT', 'ADMIN'], // Allow Admin to see all appointments too
   },
-  // Patient specific navigation items (can be shown/hidden based on role)
   {
-    href: '/my-appointments', // Example: could be same as /appointments but filtered
+    href: '/my-appointments', 
     label: 'My Appointments',
     icon: CalendarDays,
     roles: ['PATIENT'],
@@ -47,31 +48,52 @@ const allNavItems: NavItem[] = [
     icon: Brain,
     roles: ['DOCTOR', 'ADMIN'],
   },
+  // Admin specific routes
+  {
+    href: '/admin/users',
+    label: 'User Management',
+    icon: Users,
+    roles: ['ADMIN'],
+  },
+  {
+    href: '/admin/settings',
+    label: 'System Settings',
+    icon: Settings, // Using generic settings icon for now
+    roles: ['ADMIN'],
+  },
+  {
+    href: '/admin/logs',
+    label: 'Audit Logs',
+    icon: FileText, // Using generic file text icon for now
+    roles: ['ADMIN'],
+  },
+  // Example for a Profile link, could be visible to all logged-in users
   // {
   //   href: '/profile',
   //   label: 'Profile',
   //   icon: UserCircle,
+  //   roles: ['DOCTOR', 'PATIENT', 'ADMIN'], 
   // },
   // {
-  //   href: '/settings',
-  //   label: 'Settings',
-  //   icon: Settings,
+  //   href: '/login', // Changed from /logout to /login as per sidebar implementation
+  //   label: 'Cerrar Sesión',
+  //   icon: LogOut,
+  //   isFooter: true, // Mark as a footer item
+  //   // Visible to all authenticated roles
+  //   roles: ['DOCTOR', 'PATIENT', 'ADMIN'],
   // },
 ];
 
 
-// Function to get navigation items based on user role
-// In a real app, userRole would come from auth context
 export const getNavItems = (userRole?: UserRole): NavItem[] => {
-  if (!userRole) { // If no role (e.g. not logged in, or role not determined), show minimal/public items
-    return allNavItems.filter(item => !item.roles || item.roles.length === 0);
+  if (!userRole) { 
+    return allNavItems.filter(item => (!item.roles || item.roles.length === 0) && !item.isFooter);
   }
   return allNavItems.filter(item => {
-    if (!item.roles) return true; // No specific role restriction
+    if (item.isFooter) return false; // Footer items handled separately
+    if (!item.roles) return true; 
     return item.roles.includes(userRole);
   });
 };
 
-// Default export for general use, or for when role isn't critical yet (e.g. initial load)
-// You'd typically call getNavItems(currentUser.role) in your AppSidebar
 export const navItems: NavItem[] = allNavItems;

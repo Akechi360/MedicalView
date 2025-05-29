@@ -3,9 +3,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Stethoscope } from 'lucide-react';
+import { Stethoscope, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getNavItems, type NavItem } from '@/constants/navigation'; // Updated import
+import { getNavItems, type NavItem } from '@/constants/navigation';
 import {
   Sidebar,
   SidebarHeader,
@@ -16,15 +16,50 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import type { UserRole } from '@/types';
+import React, { useEffect, useState } from 'react';
+import { Button } from '../ui/button';
+import { useRouter } from 'next/navigation'; // Added for logout
 
-
-// This is a placeholder. In a real app, you'd get this from your auth context.
-// Try changing it to 'PATIENT' to see the difference in navigation.
-const currentUserRole: UserRole = 'DOCTOR'; 
+const USER_ROLE_KEY = 'currentUserRole';
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const itemsToDisplay = getNavItems(currentUserRole); // Get items based on role
+  const router = useRouter(); // Added for logout
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole | undefined>(undefined);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedRole = localStorage.getItem(USER_ROLE_KEY) as UserRole | null;
+      if (storedRole && ['DOCTOR', 'PATIENT', 'ADMIN'].includes(storedRole)) {
+        setCurrentUserRole(storedRole);
+      } else {
+        setCurrentUserRole('PATIENT'); // Default to PATIENT or a guest role if nothing/invalid is stored
+      }
+    }
+  }, []);
+
+
+  const itemsToDisplay = getNavItems(currentUserRole);
+
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(USER_ROLE_KEY);
+    }
+    setCurrentUserRole(undefined); // Or your default guest role
+    router.push('/login');
+  };
+
+  if (currentUserRole === undefined && typeof window !== 'undefined') {
+    // Still loading role from localStorage or it's not set
+    // You might want to show a loading state or a default sidebar
+    // For simplicity, returning null or a minimal sidebar until role is determined.
+    // Or redirect to login if no role and not on login page.
+    if (pathname !== '/login' && pathname !== '/register') {
+       // router.push('/login'); // Potentially redirect if no role is found
+    }
+    // return null; // Or a loading skeleton for the sidebar
+  }
+
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" side="left">
@@ -41,26 +76,41 @@ export function AppSidebar() {
       <SidebarContent className="flex-1 overflow-y-auto p-2">
         <SidebarMenu>
           {itemsToDisplay.map((item) => (
-            <SidebarMenuItem key={item.label}>
-              <Link href={item.href} legacyBehavior passHref>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
-                  tooltip={item.label}
-                  className="justify-start"
-                >
-                  <a>
-                    <item.icon className="h-5 w-5" />
-                    <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                  </a>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
+            !item.isFooter && ( // Render only non-footer items here
+              <SidebarMenuItem key={item.label}>
+                <Link href={item.href} legacyBehavior passHref>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
+                    tooltip={item.label}
+                    className="justify-start"
+                  >
+                    <a>
+                      <item.icon className="h-5 w-5" />
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            )
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="p-2 border-t border-sidebar-border group-data-[collapsible=icon]:hidden">
-        <p className="text-xs text-sidebar-foreground/70 text-center">
+      <SidebarFooter className="p-2 border-t border-sidebar-border">
+         <SidebarMenu>
+            {/* Logout Button */}
+            <SidebarMenuItem>
+                <SidebarMenuButton
+                onClick={handleLogout}
+                tooltip="Cerrar Sesión"
+                className="justify-start w-full"
+                >
+                <LogOut className="h-5 w-5" />
+                <span className="group-data-[collapsible=icon]:hidden">Cerrar Sesión</span>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        </SidebarMenu>
+        <p className="text-xs text-sidebar-foreground/70 text-center mt-2 group-data-[collapsible=icon]:hidden">
           &copy; {new Date().getFullYear()} MediView Hub
         </p>
       </SidebarFooter>

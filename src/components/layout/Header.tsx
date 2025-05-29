@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,16 +12,27 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+// import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // Not used directly here anymore
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { navItems } from '@/constants/navigation';
+// import { navItems } from '@/constants/navigation'; // Not used directly
 import { Menu, Search, UserCircle, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation'; // Added useRouter
 import { cn } from '@/lib/utils';
+
+const USER_ROLE_KEY = 'currentUserRole';
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(USER_ROLE_KEY);
+    }
+    // Optionally, update any global state if you have one
+    router.push('/login');
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
@@ -44,7 +56,7 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
               <Avatar>
-                <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="user avatar" />
+                <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="user avatar"/>
                 <AvatarFallback>MV</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
@@ -62,12 +74,12 @@ export function Header() {
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <Link href="/login">
-              <DropdownMenuItem>
+            {/* <Link href="/login"> */}
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Logout</span>
               </DropdownMenuItem>
-            </Link>
+            {/* </Link> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

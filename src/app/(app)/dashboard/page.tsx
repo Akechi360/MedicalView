@@ -1,17 +1,43 @@
 
+'use client'; // Convert to client component to use localStorage and useEffect
+
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, CalendarDays, Activity, Brain, FileText, HardDriveUpload, Eye, UserCheck } from "lucide-react";
+import { Users, CalendarDays, Activity, Brain, FileText, HardDriveUpload, Eye, UserCheck, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import type { UserRole } from '@/types';
 
-// This is a placeholder. In a real app, you'd get this from your auth context.
-// For now, we'll simulate it. Try changing it to 'PATIENT' to see the difference.
-const currentUserRole: 'DOCTOR' | 'PATIENT' = 'DOCTOR'; // Simulate current user role
+const USER_ROLE_KEY = 'currentUserRole';
 
 
 export default function DashboardPage() {
-  // Simulate fetching user data based on role - this would be async in real app
-  const userName = currentUserRole === 'DOCTOR' ? "Doctor" : "Patient User";
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole | undefined>(undefined);
+  const [userName, setUserName] = useState<string>("User");
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedRole = localStorage.getItem(USER_ROLE_KEY) as UserRole | null;
+      if (storedRole && ['DOCTOR', 'PATIENT', 'ADMIN'].includes(storedRole)) {
+        setCurrentUserRole(storedRole);
+        if (storedRole === 'ADMIN') {
+          setUserName("GodMode (Admin)");
+        } else if (storedRole === 'DOCTOR') {
+          setUserName("Doctor");
+        } else {
+          setUserName("Patient User");
+        }
+      } else {
+        setCurrentUserRole('PATIENT'); // Default if nothing or invalid is found
+        setUserName("Patient User");
+      }
+    }
+  }, []);
+
+  if (currentUserRole === undefined) {
+    // Optionally, return a loading state while role is being determined
+    return <div className="flex items-center justify-center h-full"><p>Loading dashboard...</p></div>;
+  }
 
 
   return (
@@ -23,9 +49,40 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">
           {currentUserRole === 'DOCTOR' 
             ? "Here's an overview of your MediView Hub."
+            : currentUserRole === 'ADMIN'
+            ? "System administration panel."
             : "Manage your appointments and view your medical information."}
         </p>
       </header>
+
+      {currentUserRole === 'ADMIN' && (
+         <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <DashboardCard
+              title="User Management"
+              description="Manage all users (Doctors, Patients)."
+              icon={<Users className="h-6 w-6 text-primary" />}
+              value="0 Users" // Placeholder
+              footerText="View All Users"
+              link="/admin/users" // Example admin route
+            />
+            <DashboardCard
+              title="System Settings"
+              description="Configure application settings."
+              icon={<ShieldCheck className="h-6 w-6 text-primary" />}
+              value="Config"
+              footerText="Go to Settings"
+              link="/admin/settings" // Example admin route
+            />
+             <DashboardCard
+              title="Audit Logs"
+              description="View system activity logs."
+              icon={<FileText className="h-6 w-6 text-primary" />}
+              value="View Logs"
+              footerText="Go to Logs"
+              link="/admin/logs" // Example admin route
+            />
+          </section>
+      )}
 
       {currentUserRole === 'DOCTOR' && (
         <>
@@ -92,7 +149,7 @@ export default function DashboardPage() {
               icon={<CalendarDays className="h-6 w-6 text-primary" />}
               value="0 Upcoming" 
               footerText="Go to My Appointments"
-              link="/appointments" // This link might need to be /my-appointments
+              link="/appointments" 
             />
             <DashboardCard
               title="My Medical Record"
@@ -100,7 +157,7 @@ export default function DashboardPage() {
               icon={<FileText className="h-6 w-6 text-primary" />}
               value="View"
               footerText="Access My Records"
-              link="/my-records" // This link will need a new page
+              link="/my-records" 
             />
             <DashboardCard
               title="Schedule New Appointment"
@@ -108,7 +165,7 @@ export default function DashboardPage() {
               icon={<UserCheck className="h-6 w-6 text-primary" />}
               value="Book Now"
               footerText="Schedule Appointment"
-              link="/appointments#new" // Or a dedicated booking page
+              link="/appointments#new" 
             />
           </section>
       )}
