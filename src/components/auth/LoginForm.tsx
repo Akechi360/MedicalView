@@ -17,14 +17,14 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical, ShieldAlert } from 'lucide-react';
 import React from 'react';
 import type { UserRole } from '@/types';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
-  role: z.enum(['DOCTOR', 'PATIENT'], { required_error: "You must select a role."})
+  role: z.enum(['DOCTOR', 'PATIENT', 'ADMIN'], { required_error: "You must select a role."})
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -46,16 +46,28 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     // Placeholder for actual login logic
     console.log('Login data:', data);
-    toast({
-      title: 'Login Submitted (Placeholder)',
-      description: `Role: ${data.role}. In a real app, authentication would occur here.`,
-    });
-    // Simulate successful login and redirect based on role
-    // In a real app, you'd get user data from auth and then decide
-    if (data.role === 'DOCTOR') {
-        router.push('/dashboard'); // Doctor dashboard
+    
+    // Specific credentials for GodMode
+    if (data.email === 'godmode@mediview.com' && data.password === 's1st3m4s1' && data.role === 'ADMIN') {
+      toast({
+        title: 'Admin Login Successful (Placeholder)',
+        description: `Welcome, GodMode! Role: ${data.role}.`,
+      });
+      // In a real app, set auth state here
+      // For now, we assume the AppSidebar/Dashboard will use a simulated role set to ADMIN
+      router.push('/dashboard'); 
+    } else if (data.role === 'DOCTOR' || data.role === 'PATIENT') {
+      toast({
+        title: 'Login Submitted (Placeholder)',
+        description: `Role: ${data.role}. In a real app, authentication would occur here.`,
+      });
+      router.push('/dashboard');
     } else {
-        router.push('/dashboard'); // Patient dashboard (can be different page later)
+       toast({
+        title: 'Login Failed (Placeholder)',
+        description: `Invalid credentials or role for ${data.email}.`,
+        variant: 'destructive',
+      });
     }
   }
 
@@ -83,7 +95,7 @@ export function LoginForm() {
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-4"
+                    className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-2 md:justify-around"
                   >
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
@@ -99,6 +111,14 @@ export function LoginForm() {
                       </FormControl>
                       <FormLabel htmlFor="role-patient" className="font-normal flex items-center">
                         <User className="mr-2 h-4 w-4 text-primary" /> Patient
+                      </FormLabel>
+                    </FormItem>
+                     <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="ADMIN" id="role-admin" />
+                      </FormControl>
+                      <FormLabel htmlFor="role-admin" className="font-normal flex items-center">
+                        <ShieldAlert className="mr-2 h-4 w-4 text-destructive" /> Admin
                       </FormLabel>
                     </FormItem>
                   </RadioGroup>
