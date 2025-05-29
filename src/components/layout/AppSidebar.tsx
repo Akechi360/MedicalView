@@ -1,10 +1,11 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Stethoscope } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { navItems, type NavItem } from '@/constants/navigation';
+import { getNavItems, type NavItem } from '@/constants/navigation'; // Updated import
 import {
   Sidebar,
   SidebarHeader,
@@ -13,11 +14,17 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-} from '@/components/ui/sidebar'; // Assuming this is the correct import for your custom sidebar
-import { Button } from '../ui/button';
+} from '@/components/ui/sidebar';
+import type { UserRole } from '@/types';
+
+
+// This is a placeholder. In a real app, you'd get this from your auth context.
+// Try changing it to 'PATIENT' to see the difference in navigation.
+const currentUserRole: UserRole = 'DOCTOR'; 
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const itemsToDisplay = getNavItems(currentUserRole); // Get items based on role
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" side="left">
@@ -33,7 +40,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="flex-1 overflow-y-auto p-2">
         <SidebarMenu>
-          {navItems.map((item) => (
+          {itemsToDisplay.map((item) => (
             <SidebarMenuItem key={item.label}>
               <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton

@@ -1,56 +1,17 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL_PLACEHOLDER_MEDIVIEW_HUB")
 }
 
-model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  name        String?
-  specialty   String?
-  contactInfo String?
-  role        UserRole @default(DOCTOR)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  createdPatients      Patient[]            @relation("CreatedByDoctor")
-  appointments         Appointment[]        @relation("DoctorAppointments")
-  medicalRecordEntries MedicalRecordEntry[] @relation("AuthoredByDoctor")
+generator client {
+  provider = "prisma-client-js"
 }
 
-enum UserRole {
-  ADMIN
+enum Role {
   DOCTOR
-}
-
-model Patient {
-  id                 String   @id @default(cuid())
-  fullName           String
-  dateOfBirth        DateTime
-  gender             Gender
-  nationalId         String?  @unique
-  contactPhone       String?
-  contactEmail       String?
-  address            String?
-  allergies          String?
-  currentMedications String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  createdById String?
-  createdBy   User?   @relation("CreatedByDoctor", fields: [createdById], references: [id])
-
-  appointments   Appointment[]
-  medicalHistory MedicalRecordEntry[]
-  labResults     LabResult[]
-  dicomStudies   DicomStudy[]
+  PATIENT
+  ADMIN // Kept for potential future use
 }
 
 enum Gender {
@@ -60,23 +21,6 @@ enum Gender {
   PREFER_NOT_TO_SAY
 }
 
-model Appointment {
-  id              String            @id @default(cuid())
-  dateTime        DateTime
-  durationMinutes Int
-  status          AppointmentStatus @default(SCHEDULED)
-  reason          String?
-  notes           String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
-
-  doctorId String
-  doctor   User   @relation("DoctorAppointments", fields: [doctorId], references: [id])
-}
-
 enum AppointmentStatus {
   SCHEDULED
   COMPLETED
@@ -84,77 +28,126 @@ enum AppointmentStatus {
   RESCHEDULED
 }
 
-model Attachment {
-  id        String  @id @default(cuid())
-  name      String
-  url       String
-  type      String?
-  size      Int? // in bytes
+model User {
+  id        String @id @default(cuid())
+  email     String @unique
+  name      String?
+  password  String // Store hashed passwords in a real application
+  role      Role   @default(PATIENT)
+  specialty String? // Only for DOCTORs
+
+  // For DOCTOR role
+  createdPatients         Patient[]            @relation("CreatedByDoctor")
+  doctorAppointments      Appointment[]        @relation("DoctorAppointments")
+  doctorMedicalRecords    MedicalRecordEntry[] @relation("DoctorMedicalRecords")
+
+  // For PATIENT role
+  patientProfile          Patient?             @relation("PatientUserAccount")
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  medicalRecordEntryId String?
-  medicalRecordEntry   MedicalRecordEntry? @relation("MedicalRecordAttachments", fields: [medicalRecordEntryId], references: [id])
+model Patient {
+  id                 String   @id @default(cuid())
+  userId             String?  @unique // Link to User account, if the patient is a registered user
+  user               User?    @relation("PatientUserAccount", fields: [userId], references: [id])
+  
+  fullName           String
+  dateOfBirth        DateTime
+  gender             Gender
+  nationalId         String?
+  contactPhone       String?
+  contactEmail       String? // Can be different from User.email if patient record created by doctor
+  address            String?
+  allergies          String?
+  currentMedications String?
 
-  labResultId String?
-  labResult   LabResult? @relation("LabResultAttachments", fields: [labResultId], references: [id])
+  createdById        String? // User ID of the doctor who created this patient record
+  createdBy          User?   @relation("CreatedByDoctor", fields: [createdById], references: [id])
+
+  appointments       Appointment[]
+  medicalHistory     MedicalRecordEntry[]
+  labResults         LabResult[]
+  dicomStudies       DicomStudy[]
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Appointment {
+  id              String            @id @default(cuid())
+  dateTime        DateTime
+  durationMinutes Int
+  status          AppointmentStatus
+  reason          String?
+  notes           String?
+
+  patientId       String
+  patient         Patient @relation(fields: [patientId], references: [id])
+
+  doctorId        String
+  doctor          User   @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model MedicalRecordEntry {
-  id                    String   @id @default(cuid())
-  visitDate             DateTime
-  reasonForConsultation String
-  diagnosis             String?
-  treatment             String?
-  notes                 String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                      String    @id @default(cuid())
+  visitDate               DateTime
+  reasonForConsultation   String
+  diagnosis               String?
+  treatment               String?
+  notes                   String?
+  // attachments functionality would require more complex handling, e.g. storing URLs to files
 
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId               String
+  patient                 Patient @relation(fields: [patientId], references: [id])
 
-  doctorId String
-  doctor   User   @relation("AuthoredByDoctor", fields: [doctorId], references: [id])
-
-  attachments Attachment[] @relation("MedicalRecordAttachments")
-  labResults  LabResult[]  @relation("VisitLabResults")
-  dicomStudies DicomStudy[] @relation("VisitDicomStudies")
+  doctorId                String
+  doctor                  User    @relation("DoctorMedicalRecords", fields: [doctorId], references: [id])
+  
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
 model LabResult {
-  id             String   @id @default(cuid())
-  testName       String
-  date           DateTime
-  values         String? // Could be Json for structured results
-  units          String?
-  referenceRange String?
-  interpretation String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  testName           String
+  date               DateTime
+  values             String? // Could be JSON string
+  units              String?
+  referenceRange     String?
+  interpretation     String?
+  // attachments
 
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId          String
+  patient            Patient @relation(fields: [patientId], references: [id])
+  
+  medicalRecordEntryId String? // Optional: Link to a specific medical record entry
+  // medicalRecordEntry MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
 
-  medicalRecordEntryId String?
-  medicalRecordEntry   MedicalRecordEntry? @relation("VisitLabResults", fields: [medicalRecordEntryId], references: [id])
-
-  attachments Attachment[] @relation("LabResultAttachments")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model DicomStudy {
-  id                   String   @id @default(cuid())
-  studyDate            DateTime
-  description          String?
-  storageUrl           String
-  previewImageUrl      String?
-  seriesCount          Int?
-  instanceCount        Int?
-  modality             String?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  studyDate           DateTime
+  description         String?
+  storageUrl          String   // URL to the DICOM file in cloud storage
+  previewImageUrl     String?
+  seriesCount         Int?
+  instanceCount       Int?
+  modality            String?
 
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId           String
+  patient             Patient @relation(fields: [patientId], references: [id])
 
-  medicalRecordEntryId String?
-  medicalRecordEntry   MedicalRecordEntry? @relation("VisitDicomStudies", fields: [medicalRecordEntryId], references: [id])
+  medicalRecordEntryId String? // Optional: Link to a specific medical record entry
+  // medicalRecordEntry  MedicalRecordEntry? @relation(fields: [medicalRecordEntryId], references: [id])
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }

@@ -1,70 +1,118 @@
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, CalendarDays, Activity, Brain, FileText, HardDriveUpload, Eye } from "lucide-react";
+import { Users, CalendarDays, Activity, Brain, FileText, HardDriveUpload, Eye, UserCheck } from "lucide-react";
 import Link from "next/link";
 
+// This is a placeholder. In a real app, you'd get this from your auth context.
+// For now, we'll simulate it. Try changing it to 'PATIENT' to see the difference.
+const currentUserRole: 'DOCTOR' | 'PATIENT' = 'DOCTOR'; // Simulate current user role
+
+
 export default function DashboardPage() {
+  // Simulate fetching user data based on role - this would be async in real app
+  const userName = currentUserRole === 'DOCTOR' ? "Doctor" : "Patient User";
+
+
   return (
     <div className="space-y-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-primary">Welcome, Doctor!</h1>
-        <p className="text-muted-foreground">Here's an overview of your MediView Hub.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-primary">
+          Welcome, {userName}!
+        </h1>
+        <p className="text-muted-foreground">
+          {currentUserRole === 'DOCTOR' 
+            ? "Here's an overview of your MediView Hub."
+            : "Manage your appointments and view your medical information."}
+        </p>
       </header>
 
-      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <DashboardCard
-          title="Patients"
-          description="Manage patient records and medical histories."
-          icon={<Users className="h-6 w-6 text-primary" />}
-          value="0" // Mock data removed
-          footerText="View All Patients"
-          link="/patients"
-        />
-        <DashboardCard
-          title="Appointments"
-          description="View and schedule upcoming appointments."
-          icon={<CalendarDays className="h-6 w-6 text-primary" />}
-          value="0 Today" // Mock data removed
-          footerText="Go to Calendar"
-          link="/appointments"
-        />
-        <DashboardCard
-          title="AI Diagnosis"
-          description="Utilize AI for diagnostic assistance."
-          icon={<Brain className="h-6 w-6 text-primary" />}
-          value="Ready"
-          footerText="Start AI Diagnosis"
-          link="/ai-diagnosis"
-        />
-      </section>
+      {currentUserRole === 'DOCTOR' && (
+        <>
+          <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <DashboardCard
+              title="Patients"
+              description="Manage patient records and medical histories."
+              icon={<Users className="h-6 w-6 text-primary" />}
+              value="0" 
+              footerText="View All Patients"
+              link="/patients"
+            />
+            <DashboardCard
+              title="Appointments"
+              description="View and schedule upcoming appointments."
+              icon={<CalendarDays className="h-6 w-6 text-primary" />}
+              value="0 Today" 
+              footerText="Go to Calendar"
+              link="/appointments"
+            />
+            <DashboardCard
+              title="AI Diagnosis"
+              description="Utilize AI for diagnostic assistance."
+              icon={<Brain className="h-6 w-6 text-primary" />}
+              value="Ready"
+              footerText="Start AI Diagnosis"
+              link="/ai-diagnosis"
+            />
+          </section>
 
-      <section>
-        <h2 className="text-2xl font-semibold tracking-tight mb-4 text-foreground/90">Quick Actions</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <QuickActionCard
-            title="New Patient"
-            icon={<Users className="h-5 w-5" />}
-            href="/patients/new"
-          />
-          <QuickActionCard
-            title="New Appointment"
-            icon={<CalendarDays className="h-5 w-5" />}
-            href="/appointments#new" // Assuming modal or section identified by hash
-          />
-          <QuickActionCard
-            title="Upload DICOM"
-            icon={<HardDriveUpload className="h-5 w-5" />}
-            href="/patients" // Navigate to patient list to select patient first
-          />
-          <QuickActionCard
-            title="View Reports"
-            icon={<FileText className="h-5 w-5" />}
-            href="/patients" // Navigate to patient list
-          />
-        </div>
-      </section>
+          <section>
+            <h2 className="text-2xl font-semibold tracking-tight mb-4 text-foreground/90">Quick Actions</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <QuickActionCard
+                title="New Patient"
+                icon={<Users className="h-5 w-5" />}
+                href="/patients/new"
+              />
+              <QuickActionCard
+                title="New Appointment"
+                icon={<CalendarDays className="h-5 w-5" />}
+                href="/appointments#new"
+              />
+              <QuickActionCard
+                title="Upload DICOM"
+                icon={<HardDriveUpload className="h-5 w-5" />}
+                href="/patients" 
+              />
+              <QuickActionCard
+                title="View Reports"
+                icon={<FileText className="h-5 w-5" />}
+                href="/patients"
+              />
+            </div>
+          </section>
+        </>
+      )}
+
+      {currentUserRole === 'PATIENT' && (
+         <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <DashboardCard
+              title="My Appointments"
+              description="View and manage your upcoming appointments."
+              icon={<CalendarDays className="h-6 w-6 text-primary" />}
+              value="0 Upcoming" 
+              footerText="Go to My Appointments"
+              link="/appointments" // This link might need to be /my-appointments
+            />
+            <DashboardCard
+              title="My Medical Record"
+              description="Access your medical history and lab results."
+              icon={<FileText className="h-6 w-6 text-primary" />}
+              value="View"
+              footerText="Access My Records"
+              link="/my-records" // This link will need a new page
+            />
+            <DashboardCard
+              title="Schedule New Appointment"
+              description="Find a doctor and book a new consultation."
+              icon={<UserCheck className="h-6 w-6 text-primary" />}
+              value="Book Now"
+              footerText="Schedule Appointment"
+              link="/appointments#new" // Or a dedicated booking page
+            />
+          </section>
+      )}
       
-      {/* Placeholder for recent activity or notifications */}
       <section>
         <h2 className="text-2xl font-semibold tracking-tight mb-4 text-foreground/90">Recent Activity</h2>
         <Card>
@@ -130,3 +178,4 @@ function QuickActionCard({ title, icon, href }: QuickActionCardProps) {
     </Link>
   )
 }
+

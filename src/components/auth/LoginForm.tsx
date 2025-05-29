@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,14 +14,17 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation'; // Corrected import
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical } from 'lucide-react';
 import React from 'react';
+import type { UserRole } from '@/types';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  role: z.enum(['DOCTOR', 'PATIENT'], { required_error: "You must select a role."})
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -35,6 +39,7 @@ export function LoginForm() {
     defaultValues: {
       email: '',
       password: '',
+      role: undefined, // Important for RadioGroup placeholder
     },
   });
 
@@ -43,10 +48,15 @@ export function LoginForm() {
     console.log('Login data:', data);
     toast({
       title: 'Login Submitted (Placeholder)',
-      description: 'In a real app, authentication would occur here.',
+      description: `Role: ${data.role}. In a real app, authentication would occur here.`,
     });
-    // Simulate successful login and redirect
-    router.push('/dashboard');
+    // Simulate successful login and redirect based on role
+    // In a real app, you'd get user data from auth and then decide
+    if (data.role === 'DOCTOR') {
+        router.push('/dashboard'); // Doctor dashboard
+    } else {
+        router.push('/dashboard'); // Patient dashboard (can be different page later)
+    }
   }
 
   // Placeholder for Google Sign-In
@@ -63,6 +73,40 @@ export function LoginForm() {
     <div className="grid gap-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>I am a...</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:space-x-4"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="DOCTOR" id="role-doctor" />
+                      </FormControl>
+                      <FormLabel htmlFor="role-doctor" className="font-normal flex items-center">
+                        <BriefcaseMedical className="mr-2 h-4 w-4 text-primary" /> Doctor
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="PATIENT" id="role-patient" />
+                      </FormControl>
+                      <FormLabel htmlFor="role-patient" className="font-normal flex items-center">
+                        <User className="mr-2 h-4 w-4 text-primary" /> Patient
+                      </FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="email"
@@ -100,9 +144,9 @@ export function LoginForm() {
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                     </Button>
                   </div>
                 </FormControl>
@@ -111,7 +155,7 @@ export function LoginForm() {
             )}
           />
           <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-            Sign In with Email
+            Sign In
           </Button>
         </form>
       </Form>
