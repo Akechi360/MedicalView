@@ -20,10 +20,8 @@ import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical, ShieldAlert, Loader2 } from 'lucide-react';
 import React from 'react';
 import type { UserRole } from '@/types';
-import { loginUser, syncFirebaseUserWithPrisma, type AuthResponse } from '@/lib/auth.service';
-import { auth as firebaseClientAuth } from '@/lib/firebase'; // Renamed to avoid conflict
-import { GoogleAuthProvider, signInWithPopup, type User as FirebaseUserClient } from 'firebase/auth';
-
+import { loginUser, type AuthResponse } from '@/lib/auth.service';
+// Firebase specific imports for Google Sign-In are removed
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -80,67 +78,7 @@ export function LoginForm() {
     setIsLoading(false);
   }
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(firebaseClientAuth, provider);
-      const firebaseUser = result.user;
-
-      if (firebaseUser) {
-        // Now sync this Firebase user with your Prisma backend
-        const syncResult: AuthResponse = await syncFirebaseUserWithPrisma({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-        });
-
-        if (syncResult.success && syncResult.user) {
-          toast({
-            title: 'Google Sign-In Successful',
-            description: `Welcome, ${syncResult.user.name || syncResult.user.email}! Role: ${syncResult.user.role}.`,
-          });
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(USER_ROLE_KEY, syncResult.user.role);
-            localStorage.setItem(USER_DATA_KEY, JSON.stringify(syncResult.user));
-          }
-          router.push('/dashboard');
-        } else {
-          toast({
-            title: 'Google Sign-In Failed',
-            description: syncResult.message || 'Could not sync user with database.',
-            variant: 'destructive',
-          });
-           // Optionally sign out the Firebase user if DB sync fails critically
-           // await firebaseClientAuth.signOut();
-        }
-      } else {
-        toast({
-          title: 'Google Sign-In Failed',
-          description: 'Could not retrieve user information from Google.',
-          variant: 'destructive',
-        });
-      }
-    } catch (error: any) {
-      console.error("Google Sign-In error:", error);
-      let errorMessage = 'An unexpected error occurred during Google Sign-In.';
-      if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Google Sign-In popup was closed. Please try again.';
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        errorMessage = 'Google Sign-In was cancelled. Please try again.';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      toast({
-        title: 'Google Sign-In Error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // handleGoogleSignIn function and related logic removed
 
   return (
     <div className="grid gap-6">
@@ -243,27 +181,7 @@ export function LoginForm() {
           </Button>
         </form>
       </Form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
-      <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
-         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
-          <path
-            fill="currentColor"
-            d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.05 1.05-2.36 1.97-4.04 1.97-3.07 0-5.56-2.31-5.56-5.17s2.49-5.17 5.56-5.17c1.36 0 2.39.55 3.25 1.3l2.66-2.59C19.07 1.83 16.32.01 12.48.01 7.03.01 3.01 3.95 3.01 9.28s4.02 9.27 9.47 9.27c2.83 0 4.96-.93 6.6-2.62 1.72-1.62 2.55-3.88 2.55-6.19 0-.82-.07-1.62-.24-2.38z"
-          ></path>
-        </svg>
-        Google
-      </Button>
+      {/* "Or continue with" separator and Google Sign-In button removed */}
     </div>
   );
 }
-

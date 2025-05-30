@@ -10,7 +10,6 @@ export interface User {
   specialty?: string | null; 
   createdAt: Date;
   updatedAt: Date;
-  // patientProfileId is removed as the relation is now owned by Patient model
 }
 
 export interface Patient {
@@ -40,7 +39,6 @@ export interface Appointment {
   
   patientId: string; 
   patientFullName?: string | null; 
-  // patientUserId for relation to User model (if patient is a registered user)
   patientUserId?: string | null; 
 
 
@@ -76,7 +74,6 @@ export interface MedicalRecordEntry {
   createdAt: Date;
   updatedAt: Date;
 
-  // Added for back-relations
   labResults?: LabResult[];
   dicomStudies?: DicomStudy[];
 }
@@ -119,9 +116,4 @@ export interface PaginatedData<T> {
   totalPages: number;
 }
 
-// For Firebase user data from client to server action
-export interface FirebaseClientUser {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-}
+// FirebaseClientUser type removed as it was specific to Google Sign-In sync
