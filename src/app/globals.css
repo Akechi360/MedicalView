@@ -8,95 +8,103 @@ body {
 
 @layer base {
   :root {
-    --background: 210 20% 98%; /* Very Light Cool Gray */
-    --foreground: 210 10% 23%; /* Dark Gray */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 210 10% 15%; /* #212529 */
 
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 210 10% 23%;
+    --card: 210 17% 98%; /* #F8F9FA */
+    --card-foreground: 210 10% 15%; /* #212529 */
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 210 10% 23%;
+    --popover: 0 0% 100%; /* #FFFFFF */
+    --popover-foreground: 210 10% 15%; /* #212529 */
 
-    --primary: 175 68% 49%; /* Turquoise #28D1C3 */
-    --primary-foreground: 210 10% 15%; /* Very Dark Gray/Almost Black for contrast on bright turquoise */
+    --primary: 212 49% 37%; /* #2F5A8B */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF */
 
-    --secondary: 175 65% 75%; /* Lighter Turquoise */
-    --secondary-foreground: 210 10% 23%;
+    --secondary: 216 100% 81%; /* #A0C4FF */
+    --secondary-foreground: 210 10% 15%; /* #212529 */
 
-    --muted: 210 20% 94%; /* Light Gray */
-    --muted-foreground: 210 10% 45%; /* Medium Gray */
+    --muted: 216 100% 94%; /* #E0EFFF */
+    --muted-foreground: 208 7% 48%; /* #6C757D */
 
-    --accent: 193 56% 27%; /* Casal #1E616B */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 122 39% 49%; /* #4CAF50 */
+    --accent-foreground: 0 0% 100%; /* #FFFFFF */
 
-    --destructive: 0 84.2% 60.2%; /* Default Red */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 354 70% 54%; /* #DC3545 */
+    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+    
+    /* Custom warning color, not directly in ShadCN theme but useful */
+    --warning: 36 100% 50%; /* #FF9800 */
+    --warning-foreground: 210 10% 15%; /* Dark text for contrast */
 
-    --border: 210 20% 88%;
-    --input: 0 0% 100%; 
-    --ring: 175 68% 49%; /* Primary color for ring */
 
-    --chart-1: 175 60% 60%;
-    --chart-2: 193 50% 40%;
-    --chart-3: 170 70% 55%;
-    --chart-4: 190 60% 35%;
-    --chart-5: 180 65% 50%;
+    --border: 219 33% 87%; /* #CAD2E1 */
+    --input: 0 0% 100%; /* #FFFFFF */
+    --ring: 214 100% 50%; /* #007AFF */
+
+    --chart-1: 212 49% 37%; /* Primary */
+    --chart-2: 122 39% 49%; /* Accent */
+    --chart-3: 212 49% 57%; /* Lighter Primary */
+    --chart-4: 122 39% 69%; /* Lighter Accent */
+    --chart-5: 214 100% 60%; /* Lighter version of ring color */
+    
     --radius: 0.5rem;
 
-    --sidebar-background: 193 56% 27%; /* Casal #1E616B */
+    --sidebar-background: 212 49% 27%; /* Darker Primary #224268 */
     --sidebar-foreground: 0 0% 100%; /* White */
-    --sidebar-primary: 175 68% 49%; /* Turquoise #28D1C3 for active items */
-    --sidebar-primary-foreground: 210 10% 15%; /* Very Dark Gray for text on active items */
-    --sidebar-accent: 193 50% 35%; /* Slightly Lighter/Brighter Casal for hover */
+    --sidebar-primary: 214 100% 50%; /* #007AFF for active items */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 122 39% 49%; /* #4CAF50 Green for hover */
     --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 193 50% 32%; /* Slightly lighter than Casal background */
-    --sidebar-ring: 175 68% 49%; /* Turquoise */
+    --sidebar-border: 212 49% 32%; /* Slightly lighter than sidebar bg */
+    --sidebar-ring: 214 100% 50%; /* Ring color */
   }
 
   .dark {
-    --background: 210 10% 12%; /* Very Dark Gray */
-    --foreground: 210 20% 90%; /* Light Gray */
+    --background: 220 20% 10%; /* #14171C */
+    --foreground: 210 20% 94%; /* #ECF0F1 */
 
-    --card: 210 10% 18%;
-    --card-foreground: 210 20% 90%;
+    --card: 220 18% 15%; /* #1F232B */
+    --card-foreground: 210 20% 94%;
 
-    --popover: 210 10% 18%;
-    --popover-foreground: 210 20% 90%;
+    --popover: 220 18% 15%;
+    --popover-foreground: 210 20% 94%;
 
-    --primary: 175 68% 49%; /* Turquoise #28D1C3 */
-    --primary-foreground: 210 10% 15%; /* Very Dark Gray/Almost Black */
+    --primary: 214 100% 60%; /* #3399FF - Brighter Blue for dark mode */
+    --primary-foreground: 210 10% 15%; /* Dark text for contrast */
 
-    --secondary: 175 60% 30%; /* Darker Turquoise */
-    --secondary-foreground: 210 20% 90%;
+    --secondary: 216 50% 50%; /* #4066B3 - Muted blue for dark mode */
+    --secondary-foreground: 210 20% 94%;
 
-    --muted: 210 10% 22%;
-    --muted-foreground: 210 15% 65%;
+    --muted: 220 15% 20%; /* #292E38 */
+    --muted-foreground: 210 15% 65%; /* #98A3B0 */
 
-    --accent: 193 56% 35%; /* Casal #1E616B - slightly lighter for dark mode */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 122 50% 60%; /* #66DDAA - Brighter Green for dark mode */
+    --accent-foreground: 210 10% 15%; /* Dark text for contrast */
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 354 80% 65%; /* #F65365 - Brighter Red for dark mode */
+    --destructive-foreground: 0 0% 100%;
+    
+    --warning: 36 100% 60%; /* Brighter Orange for dark mode #FFB74D */
+    --warning-foreground: 210 10% 15%;
 
-    --border: 210 10% 28%;
-    --input: 210 10% 22%;
-    --ring: 175 68% 49%;
+    --border: 220 15% 25%; /* #333B4A */
+    --input: 220 15% 18%; /* #252A33 */
+    --ring: 214 100% 60%; /* Same as dark primary */
 
-    --chart-1: 175 60% 60%;
-    --chart-2: 193 50% 40%;
-    --chart-3: 170 70% 55%;
-    --chart-4: 190 60% 35%;
-    --chart-5: 180 65% 50%;
+    --chart-1: 214 100% 60%; /* Dark Primary */
+    --chart-2: 122 50% 60%; /* Dark Accent */
+    --chart-3: 214 100% 70%; /* Lighter Dark Primary */
+    --chart-4: 122 50% 70%; /* Lighter Dark Accent */
+    --chart-5: 212 49% 50%; /* Mid-tone of original primary for variety */
 
-    /* Sidebar in dark mode uses the same Casal/Turquoise theme */
-    --sidebar-background: 193 56% 27%; /* Casal #1E616B */
-    --sidebar-foreground: 0 0% 100%; /* White */
-    --sidebar-primary: 175 68% 49%; /* Turquoise #28D1C3 */
-    --sidebar-primary-foreground: 210 10% 15%; /* Very Dark Gray */
-    --sidebar-accent: 193 50% 35%; /* Slightly Lighter/Brighter Casal */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 193 50% 32%; 
-    --sidebar-ring: 175 68% 49%;
+    --sidebar-background: 212 40% 20%; /* #1A2E47 */
+    --sidebar-foreground: 210 20% 94%; /* Light Gray Text */
+    --sidebar-primary: 214 100% 60%; /* Active Item - same as dark primary */
+    --sidebar-primary-foreground: 210 10% 15%; /* Dark text on active */
+    --sidebar-accent: 122 50% 60%; /* Hover - same as dark accent */
+    --sidebar-accent-foreground: 210 10% 15%; /* Dark text on hover */
+    --sidebar-border: 212 40% 25%; /* Slightly lighter than dark sidebar bg */
+    --sidebar-ring: 214 100% 60%;
   }
 }
 
