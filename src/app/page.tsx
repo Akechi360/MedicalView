@@ -12,7 +12,7 @@ export default function HomePage() {
             <Stethoscope className="h-10 w-10 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-primary">
-            Iniciar Sesión en MediView Hub
+            Iniciar Sesión en MedicalView
           </h1>
           <p className="text-sm text-muted-foreground">
             Selecciona tu rol e ingresa tus credenciales.
@@ -50,3 +50,4 @@ export default function HomePage() {
     </div>
   );
 }
+
