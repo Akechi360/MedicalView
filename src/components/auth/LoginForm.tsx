@@ -20,7 +20,10 @@ import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical, ShieldAlert, Loader2 } from 'lucide-react';
 import React from 'react';
 import type { UserRole } from '@/types';
-import { loginUser, type AuthResponse } from '@/lib/auth.service';
+import { loginUser, syncFirebaseUserWithPrisma, type AuthResponse } from '@/lib/auth.service';
+import { auth as firebaseClientAuth } from '@/lib/firebase'; // Renamed to avoid conflict
+import { GoogleAuthProvider, signInWithPopup, type User as FirebaseUserClient } from 'firebase/auth';
+
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -31,7 +34,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const USER_ROLE_KEY = 'currentUserRole';
-const USER_DATA_KEY = 'currentUserData'; // For storing user ID, name, email
+const USER_DATA_KEY = 'currentUserData'; 
 
 export function LoginForm() {
   const { toast } = useToast();
@@ -64,7 +67,7 @@ export function LoginForm() {
       });
       if (typeof window !== 'undefined') {
         localStorage.setItem(USER_ROLE_KEY, result.user.role);
-        localStorage.setItem(USER_DATA_KEY, JSON.stringify(result.user)); // Store user data
+        localStorage.setItem(USER_DATA_KEY, JSON.stringify(result.user));
       }
       router.push('/dashboard');
     } else {
@@ -77,25 +80,67 @@ export function LoginForm() {
     setIsLoading(false);
   }
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    // Placeholder for Google Sign-In logic.
-    // In a real app, this would involve Firebase or another OAuth provider.
-    // For now, simulate a PATIENT login.
-    setTimeout(() => {
-      toast({
-        title: 'Google Sign-In (Placeholder)',
-        description: 'This would initiate Google Sign-In flow. Simulating patient login.',
-      });
-      const mockPatientUser = { id: 'google-user', email: 'google.patient@example.com', name: 'Google Patient', role: 'PATIENT' as UserRole };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(USER_ROLE_KEY, 'PATIENT');
-        localStorage.setItem(USER_DATA_KEY, JSON.stringify(mockPatientUser));
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(firebaseClientAuth, provider);
+      const firebaseUser = result.user;
+
+      if (firebaseUser) {
+        // Now sync this Firebase user with your Prisma backend
+        const syncResult: AuthResponse = await syncFirebaseUserWithPrisma({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+        });
+
+        if (syncResult.success && syncResult.user) {
+          toast({
+            title: 'Google Sign-In Successful',
+            description: `Welcome, ${syncResult.user.name || syncResult.user.email}! Role: ${syncResult.user.role}.`,
+          });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(USER_ROLE_KEY, syncResult.user.role);
+            localStorage.setItem(USER_DATA_KEY, JSON.stringify(syncResult.user));
+          }
+          router.push('/dashboard');
+        } else {
+          toast({
+            title: 'Google Sign-In Failed',
+            description: syncResult.message || 'Could not sync user with database.',
+            variant: 'destructive',
+          });
+           // Optionally sign out the Firebase user if DB sync fails critically
+           // await firebaseClientAuth.signOut();
+        }
+      } else {
+        toast({
+          title: 'Google Sign-In Failed',
+          description: 'Could not retrieve user information from Google.',
+          variant: 'destructive',
+        });
       }
-      router.push('/dashboard');
+    } catch (error: any) {
+      console.error("Google Sign-In error:", error);
+      let errorMessage = 'An unexpected error occurred during Google Sign-In.';
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Google Sign-In popup was closed. Please try again.';
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        errorMessage = 'Google Sign-In was cancelled. Please try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      toast({
+        title: 'Google Sign-In Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
+
 
   return (
     <div className="grid gap-6">
@@ -221,3 +266,4 @@ export function LoginForm() {
     </div>
   );
 }
+

@@ -4,18 +4,18 @@ export type UserRole = 'DOCTOR' | 'PATIENT' | 'ADMIN';
 export interface User {
   id: string;
   email: string;
-  fullName?: string | null; // Prisma schema uses String? which can be null
-  password?: string; // Optional on the type, but required in DB (hash)
+  fullName?: string | null; 
+  password?: string; // Hash in DB, not sent to client
   role: UserRole;
-  specialty?: string | null; // For doctors, Prisma String?
+  specialty?: string | null; 
   createdAt: Date;
   updatedAt: Date;
-  patientProfileId?: string | null; // Link to Patient profile if role is PATIENT
+  // patientProfileId is removed as the relation is now owned by Patient model
 }
 
 export interface Patient {
   id: string;
-  userId?: string | null; 
+  userId?: string | null; // Foreign key to User model
   fullName: string;
   dateOfBirth: Date;
   gender: 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
@@ -37,10 +37,16 @@ export interface Appointment {
   dateTime: Date;
   durationMinutes: number;
   status: AppointmentStatus;
+  
   patientId: string; 
   patientFullName?: string | null; 
+  // patientUserId for relation to User model (if patient is a registered user)
+  patientUserId?: string | null; 
+
+
   doctorId: string; 
   doctorName?: string | null; 
+  
   reason?: string | null; 
   notes?: string | null; 
   createdAt: Date;
@@ -54,9 +60,6 @@ export interface Attachment {
   size?: number; 
 }
 
-// Prisma's Json? type can be represented as `any` or a more specific type if known
-// For simplicity, we can use `Attachment[] | null` if attachments is a JSON field storing an array.
-// However, Prisma's Json type is more flexible. Let's assume it can be null.
 export type AttachmentsJson = Attachment[] | null;
 
 
@@ -69,9 +72,13 @@ export interface MedicalRecordEntry {
   notes?: string | null;
   patientId: string; 
   doctorId: string; 
-  attachments?: AttachmentsJson; // Prisma's Json?
+  attachments?: AttachmentsJson; 
   createdAt: Date;
   updatedAt: Date;
+
+  // Added for back-relations
+  labResults?: LabResult[];
+  dicomStudies?: DicomStudy[];
 }
 
 export interface LabResult {
@@ -84,7 +91,7 @@ export interface LabResult {
   interpretation?: string | null;
   patientId: string; 
   medicalRecordEntryId?: string | null; 
-  attachments?: AttachmentsJson; // Prisma's Json?
+  attachments?: AttachmentsJson; 
   createdAt: Date;
   updatedAt: Date;
 }
@@ -110,4 +117,11 @@ export interface PaginatedData<T> {
   page: number;
   pageSize: number;
   totalPages: number;
+}
+
+// For Firebase user data from client to server action
+export interface FirebaseClientUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
 }
