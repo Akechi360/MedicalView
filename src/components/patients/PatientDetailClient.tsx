@@ -40,25 +40,12 @@ export function PatientDetailClient({
   const [dicomStudies, setDicomStudies] = useState<DicomStudy[]>(initialDicomStudies);
   const { toast } = useToast();
 
-  // Placeholder functions for adding new entries
-  const handleAddMedicalEntry = () => toast({ title: "Add Medical Entry (Placeholder)"});
-  const handleAddLabResult = () => toast({ title: "Add Lab Result (Placeholder)"});
+  const handleAddMedicalEntry = () => toast({ title: "Añadir Entrada Médica (Simulado)"});
+  const handleAddLabResult = () => toast({ title: "Añadir Resultado de Laboratorio (Simulado)"});
   const handleUploadDicom = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      toast({ title: "DICOM Uploaded (Placeholder)", description: `File: ${file.name}`});
-      // Simulate adding to list - removed as per request to eliminate mocks
-      // const newStudy: DicomStudy = {
-      //   id: Math.random().toString(36).substring(7),
-      //   patientId: patient.id,
-      //   studyDate: new Date(),
-      //   description: file.name,
-      //   storageUrl: `placeholder/path/to/${file.name}`,
-      //   previewImageUrl: `https://placehold.co/200x200.png?text=${file.name.substring(0,3)}`,
-      //   createdAt: new Date(),
-      //   updatedAt: new Date(),
-      // };
-      // setDicomStudies(prev => [newStudy, ...prev]); // Mock behavior removed
+      toast({ title: "DICOM Subido (Simulado)", description: `Archivo: ${file.name}`});
     }
   };
 
@@ -66,10 +53,10 @@ export function PatientDetailClient({
   return (
     <Tabs defaultValue="overview" className="w-full">
       <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6">
-        <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="history">Medical History</TabsTrigger>
-        <TabsTrigger value="labs">Lab Results</TabsTrigger>
-        <TabsTrigger value="dicom">DICOM Studies</TabsTrigger>
+        <TabsTrigger value="overview">Resumen</TabsTrigger>
+        <TabsTrigger value="history">Historial Médico</TabsTrigger>
+        <TabsTrigger value="labs">Resultados Lab.</TabsTrigger>
+        <TabsTrigger value="dicom">Estudios DICOM</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview">
@@ -78,42 +65,42 @@ export function PatientDetailClient({
 
       <TabsContent value="history">
         <SectionShell
-          title="Medical History"
+          title="Historial Médico"
           icon={<FileText className="h-5 w-5 text-primary" />}
           onAdd={handleAddMedicalEntry}
-          addLabel="New Medical Entry"
+          addLabel="Nueva Entrada Médica"
         >
           {medicalHistory.length > 0 ? (
             medicalHistory.map(entry => <MedicalEntryCard key={entry.id} entry={entry} />)
           ) : (
-            <EmptyState icon={<FileText />} message="No medical history recorded for this patient." />
+            <EmptyState icon={<FileText />} message="No hay historial médico registrado para este paciente." />
           )}
         </SectionShell>
       </TabsContent>
 
       <TabsContent value="labs">
         <SectionShell
-          title="Lab Results"
+          title="Resultados de Laboratorio"
           icon={<Microscope className="h-5 w-5 text-primary" />}
           onAdd={handleAddLabResult}
-          addLabel="Add Lab Result"
+          addLabel="Añadir Resultado"
         >
           {labResults.length > 0 ? (
              labResults.map(result => <LabResultCard key={result.id} result={result} />)
           ) : (
-            <EmptyState icon={<Microscope />} message="No lab results available for this patient." />
+            <EmptyState icon={<Microscope />} message="No hay resultados de laboratorio disponibles para este paciente." />
           )}
         </SectionShell>
       </TabsContent>
 
       <TabsContent value="dicom">
          <SectionShell
-          title="DICOM Studies"
+          title="Estudios DICOM"
           icon={<FileScan className="h-5 w-5 text-primary" />}
           customAddAction={
             <Button asChild>
               <label htmlFor="dicom-upload">
-                <Upload className="mr-2 h-4 w-4" /> Upload DICOM Study
+                <Upload className="mr-2 h-4 w-4" /> Subir Estudio DICOM
                 <input id="dicom-upload" type="file" accept=".dcm,image/dicom-rle" className="hidden" onChange={handleUploadDicom} />
               </label>
             </Button>
@@ -124,7 +111,7 @@ export function PatientDetailClient({
               {dicomStudies.map(study => <DicomStudyCard key={study.id} study={study} />)}
             </div>
           ) : (
-            <EmptyState icon={<FileScan />} message="No DICOM studies uploaded for this patient." />
+            <EmptyState icon={<FileScan />} message="No hay estudios DICOM subidos para este paciente." />
           )}
         </SectionShell>
       </TabsContent>
@@ -134,23 +121,32 @@ export function PatientDetailClient({
 
 
 function PatientOverview({ patient }: { patient: Patient }) {
+  const genderSpanish = (gender: Patient['gender']) => {
+    switch(gender) {
+      case 'MALE': return 'Masculino';
+      case 'FEMALE': return 'Femenino';
+      case 'OTHER': return 'Otro';
+      case 'PREFER_NOT_TO_SAY': return 'Prefiero no decirlo';
+      default: return gender;
+    }
+  }
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Patient Information</CardTitle>
+        <CardTitle className="text-xl">Información del Paciente</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <InfoRow label="Full Name" value={patient.fullName} />
-        <InfoRow label="Date of Birth" value={format(new Date(patient.dateOfBirth), 'PPP')} />
-        <InfoRow label="Gender" value={patient.gender} />
-        <InfoRow label="National ID" value={patient.nationalId || 'N/A'} />
-        <InfoRow label="Contact Phone" value={patient.contactPhone || 'N/A'} />
-        <InfoRow label="Contact Email" value={patient.contactEmail || 'N/A'} />
-        <InfoRow label="Address" value={patient.address || 'N/A'} />
-        <InfoRow label="Allergies" value={patient.allergies || 'None reported'} />
-        <InfoRow label="Current Medications" value={patient.currentMedications || 'None reported'} />
-        <InfoRow label="Profile Created" value={format(new Date(patient.createdAt), 'PPpp')} />
-        <InfoRow label="Last Updated" value={format(new Date(patient.updatedAt), 'PPpp')} />
+        <InfoRow label="Nombre Completo" value={patient.fullName} />
+        <InfoRow label="Fecha de Nacimiento" value={format(new Date(patient.dateOfBirth), 'PPP')} />
+        <InfoRow label="Género" value={genderSpanish(patient.gender)} />
+        <InfoRow label="ID Nacional" value={patient.nationalId || 'N/A'} />
+        <InfoRow label="Teléfono de Contacto" value={patient.contactPhone || 'N/A'} />
+        <InfoRow label="Correo Electrónico" value={patient.contactEmail || 'N/A'} />
+        <InfoRow label="Dirección" value={patient.address || 'N/A'} />
+        <InfoRow label="Alergias" value={patient.allergies || 'Ninguna reportada'} />
+        <InfoRow label="Medicamentos Actuales" value={patient.currentMedications || 'Ninguno reportado'} />
+        <InfoRow label="Perfil Creado" value={format(new Date(patient.createdAt), 'PPpp')} />
+        <InfoRow label="Última Actualización" value={format(new Date(patient.updatedAt), 'PPpp')} />
       </CardContent>
     </Card>
   );
@@ -206,21 +202,20 @@ function EmptyState({ icon, message }: { icon: React.ReactNode; message: string 
   );
 }
 
-// Placeholder Card components for History, Labs, DICOM entries
 function MedicalEntryCard({ entry }: { entry: MedicalRecordEntry }) {
   return (
     <Card className="bg-muted/30">
       <CardHeader>
-        <CardTitle className="text-lg">Visit on {format(new Date(entry.visitDate), 'PPP')}</CardTitle>
-        <CardDescription>Reason: {entry.reasonForConsultation}</CardDescription>
+        <CardTitle className="text-lg">Visita el {format(new Date(entry.visitDate), 'PPP')}</CardTitle>
+        <CardDescription>Motivo: {entry.reasonForConsultation}</CardDescription>
       </CardHeader>
       <CardContent>
-        <p><strong>Diagnosis:</strong> {entry.diagnosis || 'N/A'}</p>
-        <p><strong>Treatment:</strong> {entry.treatment || 'N/A'}</p>
-        {entry.notes && <p className="mt-2 text-sm bg-background p-2 rounded"><strong>Notes:</strong> {entry.notes}</p>}
+        <p><strong>Diagnóstico:</strong> {entry.diagnosis || 'N/A'}</p>
+        <p><strong>Tratamiento:</strong> {entry.treatment || 'N/A'}</p>
+        {entry.notes && <p className="mt-2 text-sm bg-background p-2 rounded"><strong>Notas:</strong> {entry.notes}</p>}
         {entry.attachments && entry.attachments.length > 0 && (
           <div className="mt-2">
-            <strong>Attachments:</strong>
+            <strong>Adjuntos:</strong>
             <ul className="list-disc pl-5">
               {entry.attachments.map(att => <li key={att.name}><a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{att.name}</a></li>)}
             </ul>
@@ -228,8 +223,8 @@ function MedicalEntryCard({ entry }: { entry: MedicalRecordEntry }) {
         )}
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm"><FileText className="mr-1 h-4 w-4"/> View Full Note</Button>
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/90"><Trash2 className="mr-1 h-4 w-4"/> Delete</Button>
+        <Button variant="ghost" size="sm"><FileText className="mr-1 h-4 w-4"/> Ver Nota Completa</Button>
+        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/90"><Trash2 className="mr-1 h-4 w-4"/> Eliminar</Button>
       </CardFooter>
     </Card>
   );
@@ -240,14 +235,14 @@ function LabResultCard({ result }: { result: LabResult }) {
     <Card className="bg-muted/30">
       <CardHeader>
         <CardTitle className="text-lg">{result.testName}</CardTitle>
-        <CardDescription>Date: {format(new Date(result.date), 'PPP')}</CardDescription>
+        <CardDescription>Fecha: {format(new Date(result.date), 'PPP')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <p><strong>Result:</strong> {result.values || 'N/A'} {result.units}</p>
-        <p><strong>Interpretation:</strong> {result.interpretation || 'N/A'}</p>
+        <p><strong>Resultado:</strong> {result.values || 'N/A'} {result.units}</p>
+        <p><strong>Interpretación:</strong> {result.interpretation || 'N/A'}</p>
         {result.attachments && result.attachments.length > 0 && (
           <div className="mt-2">
-            <strong>Attachments:</strong>
+            <strong>Adjuntos:</strong>
             <ul className="list-disc pl-5">
               {result.attachments.map(att => <li key={att.name}><a href={att.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{att.name}</a></li>)}
             </ul>
@@ -255,8 +250,8 @@ function LabResultCard({ result }: { result: LabResult }) {
         )}
       </CardContent>
        <CardFooter className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm"><EyeIcon className="mr-1 h-4 w-4"/> View Details</Button>
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/90"><Trash2 className="mr-1 h-4 w-4"/> Delete</Button>
+        <Button variant="ghost" size="sm"><EyeIcon className="mr-1 h-4 w-4"/> Ver Detalles</Button>
+        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive/90"><Trash2 className="mr-1 h-4 w-4"/> Eliminar</Button>
       </CardFooter>
     </Card>
   );
@@ -266,14 +261,14 @@ function DicomStudyCard({ study }: { study: DicomStudy }) {
   const { toast } = useToast();
   const handleViewDicom = () => {
      toast({
-      title: "View DICOM (Placeholder)",
-      description: "This would open the DICOM viewer for " + study.description,
+      title: "Ver DICOM (Simulado)",
+      description: "Esto abriría el visor DICOM para " + study.description,
     });
   }
   return (
     <Card className="overflow-hidden">
       {study.previewImageUrl && (
-         <Image src={study.previewImageUrl} alt={study.description || 'DICOM Study'} width={200} height={200} className="w-full h-40 object-cover" data-ai-hint="medical scan" />
+         <Image src={study.previewImageUrl} alt={study.description || 'Estudio DICOM'} width={200} height={200} className="w-full h-40 object-cover" data-ai-hint="medical scan" />
       )}
       {!study.previewImageUrl && (
         <div className="w-full h-40 bg-muted flex items-center justify-center">
@@ -281,14 +276,13 @@ function DicomStudyCard({ study }: { study: DicomStudy }) {
         </div>
       )}
       <CardHeader className="p-3">
-        <CardTitle className="text-base truncate" title={study.description || 'DICOM Study'}>{study.description || 'DICOM Study'}</CardTitle>
-        <CardDescription className="text-xs">Date: {format(new Date(study.studyDate), 'PP')}</CardDescription>
+        <CardTitle className="text-base truncate" title={study.description || 'Estudio DICOM'}>{study.description || 'Estudio DICOM'}</CardTitle>
+        <CardDescription className="text-xs">Fecha: {format(new Date(study.studyDate), 'PP')}</CardDescription>
       </CardHeader>
       <CardFooter className="p-3 flex justify-between items-center">
         <Button variant="default" size="sm" onClick={handleViewDicom} className="w-full">
-          <EyeIcon className="mr-1 h-4 w-4"/> View
+          <EyeIcon className="mr-1 h-4 w-4"/> Ver
         </Button>
-        {/* <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/90"><Trash2 className="h-4 w-4"/></Button> */}
       </CardFooter>
     </Card>
   );

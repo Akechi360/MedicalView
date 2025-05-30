@@ -5,9 +5,7 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import type { UserRole } from '@/types';
 import type { RegisterFormValuesNoConfirm } from '@/components/auth/RegisterForm';
-// Firebase Auth related imports are removed if solely for Google Sign-In.
-// If other Firebase auth methods (e.g. email link) were planned, some might remain.
-// For now, assuming Google was the only Firebase auth.
+
 
 export interface AuthResponse {
   success: boolean;
@@ -28,7 +26,7 @@ export async function registerUser(data: RegisterFormValuesNoConfirm): Promise<A
     });
 
     if (existingUser) {
-      return { success: false, message: 'User with this email already exists.' };
+      return { success: false, message: 'Un usuario con este correo electrónico ya existe.' };
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -62,7 +60,7 @@ export async function registerUser(data: RegisterFormValuesNoConfirm): Promise<A
 
     return {
       success: true,
-      message: 'User registered successfully.',
+      message: 'Usuario registrado exitosamente.',
       user: {
         id: newUser.id,
         email: newUser.email,
@@ -71,13 +69,13 @@ export async function registerUser(data: RegisterFormValuesNoConfirm): Promise<A
       }
     };
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Error de registro:', error);
     if (error instanceof prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002') { 
-        return { success: false, message: `An account with this email already exists. Fields: ${error.meta?.target}` };
+        return { success: false, message: `Ya existe una cuenta con este correo electrónico. Campos: ${error.meta?.target}` };
       }
     }
-    return { success: false, message: 'Registration failed. Please try again.', error };
+    return { success: false, message: 'El registro falló. Por favor, inténtalo de nuevo.', error };
   }
 }
 
@@ -89,24 +87,24 @@ export async function loginUser(email: string, passwordAttempt: string, role: Us
     });
 
     if (!user) {
-      return { success: false, message: 'User not found.' };
+      return { success: false, message: 'Usuario no encontrado.' };
     }
 
     if (user.role !== role) {
-        return { success: false, message: `Incorrect role selected. Expected ${user.role}, but you selected ${role}.` };
+        return { success: false, message: `Rol incorrecto seleccionado. Se esperaba ${user.role}, pero seleccionaste ${role}.` };
     }
 
     const isPasswordValid = await bcrypt.compare(passwordAttempt, user.password);
 
     if (!isPasswordValid) {
-      return { success: false, message: 'Incorrect password for the selected role.' };
+      return { success: false, message: 'Contraseña incorrecta para el rol seleccionado.' };
     }
     
     const { password, ...userWithoutPassword } = user;
 
     return {
       success: true,
-      message: 'Login successful.',
+      message: 'Inicio de sesión exitoso.',
       user: {
         id: userWithoutPassword.id,
         email: userWithoutPassword.email,
@@ -115,10 +113,7 @@ export async function loginUser(email: string, passwordAttempt: string, role: Us
       }
     };
   } catch (error) {
-    console.error('Login error:', error);
-    return { success: false, message: 'Login failed due to a server error. Please try again.', error };
+    console.error('Error de inicio de sesión:', error);
+    return { success: false, message: 'El inicio de sesión falló debido a un error del servidor. Por favor, inténtalo de nuevo.', error };
   }
 }
-
-// signInWithGoogle function removed
-// syncFirebaseUserWithPrisma function removed

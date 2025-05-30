@@ -8,7 +8,7 @@ body {
 
 @layer base {
   :root {
-    --background: 204 17% 94%; /* #ECF0F1 Light Gray */
+    --background: 210 20% 98%; /* Very Light Cool Gray */
     --foreground: 210 10% 23%; /* Dark Gray */
 
     --card: 0 0% 100%; /* White */
@@ -17,85 +17,86 @@ body {
     --popover: 0 0% 100%; /* White */
     --popover-foreground: 210 10% 23%;
 
-    --primary: 207 68% 53%; /* #3498DB Deep Sky Blue */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 175 68% 49%; /* Turquoise #28D1C3 */
+    --primary-foreground: 210 10% 15%; /* Very Dark Gray/Almost Black for contrast on bright turquoise */
 
-    --secondary: 207 60% 85%; /* Lighter shade of primary */
+    --secondary: 175 65% 75%; /* Lighter Turquoise */
     --secondary-foreground: 210 10% 23%;
 
-    --muted: 204 17% 88%; /* Slightly darker/muted version of background */
-    --muted-foreground: 210 10% 45%; /* Medium Gray for muted text */
+    --muted: 210 20% 94%; /* Light Gray */
+    --muted-foreground: 210 10% 45%; /* Medium Gray */
 
-    --accent: 283 39% 53%; /* #9B59B6 Purple */
+    --accent: 193 56% 27%; /* Casal #1E616B */
     --accent-foreground: 0 0% 100%; /* White */
 
     --destructive: 0 84.2% 60.2%; /* Default Red */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 204 17% 80%;
-    --input: 0 0% 100%; /* White for input background, with border */
-    --ring: 207 68% 53%; /* Primary color for ring */
+    --border: 210 20% 88%;
+    --input: 0 0% 100%; 
+    --ring: 175 68% 49%; /* Primary color for ring */
 
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 175 60% 60%;
+    --chart-2: 193 50% 40%;
+    --chart-3: 170 70% 55%;
+    --chart-4: 190 60% 35%;
+    --chart-5: 180 65% 50%;
     --radius: 0.5rem;
 
-    --sidebar-background: 204 17% 90%;
-    --sidebar-foreground: 210 10% 23%;
-    --sidebar-primary: 207 68% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 207 60% 80%;
-    --sidebar-accent-foreground: 210 10% 23%;
-    --sidebar-border: 204 17% 75%;
-    --sidebar-ring: 207 68% 53%;
+    --sidebar-background: 193 56% 27%; /* Casal #1E616B */
+    --sidebar-foreground: 0 0% 100%; /* White */
+    --sidebar-primary: 175 68% 49%; /* Turquoise #28D1C3 for active items */
+    --sidebar-primary-foreground: 210 10% 15%; /* Very Dark Gray for text on active items */
+    --sidebar-accent: 193 50% 35%; /* Slightly Lighter/Brighter Casal for hover */
+    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-border: 193 50% 32%; /* Slightly lighter than Casal background */
+    --sidebar-ring: 175 68% 49%; /* Turquoise */
   }
 
   .dark {
-    --background: 210 10% 15%; /* Dark Gray */
-    --foreground: 204 17% 94%; /* Light Gray */
+    --background: 210 10% 12%; /* Very Dark Gray */
+    --foreground: 210 20% 90%; /* Light Gray */
 
-    --card: 210 10% 20%;
-    --card-foreground: 204 17% 94%;
+    --card: 210 10% 18%;
+    --card-foreground: 210 20% 90%;
 
-    --popover: 210 10% 20%;
-    --popover-foreground: 204 17% 94%;
+    --popover: 210 10% 18%;
+    --popover-foreground: 210 20% 90%;
 
-    --primary: 207 68% 53%; /* #3498DB Deep Sky Blue */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 175 68% 49%; /* Turquoise #28D1C3 */
+    --primary-foreground: 210 10% 15%; /* Very Dark Gray/Almost Black */
 
-    --secondary: 207 50% 35%; /* Darker shade of primary */
-    --secondary-foreground: 204 17% 94%;
+    --secondary: 175 60% 30%; /* Darker Turquoise */
+    --secondary-foreground: 210 20% 90%;
 
-    --muted: 210 10% 25%;
-    --muted-foreground: 204 17% 70%;
+    --muted: 210 10% 22%;
+    --muted-foreground: 210 15% 65%;
 
-    --accent: 283 39% 53%; /* #9B59B6 Purple */
+    --accent: 193 56% 35%; /* Casal #1E616B - slightly lighter for dark mode */
     --accent-foreground: 0 0% 100%; /* White */
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 210 10% 30%;
-    --input: 210 10% 25%;
-    --ring: 207 68% 53%;
+    --border: 210 10% 28%;
+    --input: 210 10% 22%;
+    --ring: 175 68% 49%;
 
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-1: 175 60% 60%;
+    --chart-2: 193 50% 40%;
+    --chart-3: 170 70% 55%;
+    --chart-4: 190 60% 35%;
+    --chart-5: 180 65% 50%;
 
-    --sidebar-background: 210 10% 12%;
-    --sidebar-foreground: 204 17% 94%;
-    --sidebar-primary: 207 68% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 207 50% 30%;
-    --sidebar-accent-foreground: 204 17% 94%;
-    --sidebar-border: 210 10% 25%;
-    --sidebar-ring: 207 68% 53%;
+    /* Sidebar in dark mode uses the same Casal/Turquoise theme */
+    --sidebar-background: 193 56% 27%; /* Casal #1E616B */
+    --sidebar-foreground: 0 0% 100%; /* White */
+    --sidebar-primary: 175 68% 49%; /* Turquoise #28D1C3 */
+    --sidebar-primary-foreground: 210 10% 15%; /* Very Dark Gray */
+    --sidebar-accent: 193 50% 35%; /* Slightly Lighter/Brighter Casal */
+    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-border: 193 50% 32%; 
+    --sidebar-ring: 175 68% 49%;
   }
 }
 

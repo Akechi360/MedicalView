@@ -17,7 +17,7 @@ const USER_DATA_KEY = 'currentUserData';
 export default function DashboardPage() {
   const router = useRouter();
   const [currentUserRole, setCurrentUserRole] = useState<UserRole | undefined>(undefined);
-  const [userName, setUserName] = useState<string>("User");
+  const [userName, setUserName] = useState<string>("Usuario");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,33 +25,31 @@ export default function DashboardPage() {
       const storedRole = localStorage.getItem(USER_ROLE_KEY) as UserRole | null;
       const storedUserData = localStorage.getItem(USER_DATA_KEY);
       
-      let resolvedUserName = "User";
+      let resolvedUserName = "Usuario";
       if (storedUserData) {
         try {
           const userData = JSON.parse(storedUserData);
-          resolvedUserName = userData.name || userData.email || "User";
+          resolvedUserName = userData.name || userData.email || "Usuario";
         } catch (e) {
-          console.error("Failed to parse user data for dashboard:", e);
+          console.error("Error al parsear datos de usuario para el panel:", e);
         }
       }
 
       if (storedRole && ['DOCTOR', 'PATIENT', 'ADMIN'].includes(storedRole)) {
         setCurrentUserRole(storedRole);
         if (storedRole === 'ADMIN') {
-          setUserName(resolvedUserName === "User" ? "GodMode (Admin)" : resolvedUserName);
+          setUserName(resolvedUserName === "Usuario" ? "GodMode (Admin)" : resolvedUserName);
         } else {
           setUserName(resolvedUserName);
         }
       } else {
-        // If no role, or invalid role, redirect to login.
-        // This is a simple client-side redirect. Proper auth would use middleware.
         toast({
-            title: 'Access Denied',
-            description: 'Please log in to access the dashboard.',
+            title: 'Acceso Denegado',
+            description: 'Por favor, inicia sesión para acceder al panel.',
             variant: 'destructive',
         });
         router.push('/login');
-        return; // Stop further execution in this effect
+        return; 
       }
       setIsLoading(false);
     }
@@ -61,7 +59,7 @@ export default function DashboardPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[calc(100vh-theme(space.32))]">
         <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading dashboard...</p>
+        <p className="text-muted-foreground">Cargando panel...</p>
       </div>
     );
   }
@@ -71,97 +69,97 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-primary">
-          Welcome, {userName}!
+          ¡Bienvenido, {userName}!
         </h1>
         <p className="text-muted-foreground">
           {currentUserRole === 'DOCTOR' 
-            ? "Here's an overview of your MediView Hub."
+            ? "Aquí tienes un resumen de tu MediView Hub."
             : currentUserRole === 'ADMIN'
-            ? "System administration panel."
-            : "Manage your appointments and view your medical information."}
+            ? "Panel de administración del sistema."
+            : "Gestiona tus citas y consulta tu información médica."}
         </p>
       </header>
 
-      {currentUserRole === 'ADMIN' && (
+      {(currentUserRole === 'ADMIN' || currentUserRole === 'DOCTOR') && ( // Combined condition
          <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <DashboardCard
-              title="User Management"
-              description="Manage all users (Doctors, Patients)."
+              title="Gestión de Usuarios"
+              description="Administra todos los usuarios (Médicos, Pacientes)."
               icon={<Users className="h-6 w-6 text-primary" />}
-              value="0 Users" // Placeholder, ideally fetched data
-              footerText="View All Users"
+              value="0 Usuarios" 
+              footerText="Ver Todos los Usuarios"
               link="/admin/users" 
             />
             <DashboardCard
-              title="System Settings"
-              description="Configure application settings."
+              title="Configuración del Sistema"
+              description="Configura los ajustes de la aplicación."
               icon={<ShieldCheck className="h-6 w-6 text-primary" />}
-              value="Config"
-              footerText="Go to Settings"
+              value="Config."
+              footerText="Ir a Ajustes"
               link="/admin/settings" 
             />
              <DashboardCard
-              title="Audit Logs"
-              description="View system activity logs."
+              title="Registros de Auditoría"
+              description="Consulta los registros de actividad del sistema."
               icon={<FileText className="h-6 w-6 text-primary" />}
-              value="View Logs"
-              footerText="Go to Logs"
+              value="Ver Registros"
+              footerText="Ir a Registros"
               link="/admin/logs" 
             />
           </section>
       )}
 
-      {currentUserRole === 'DOCTOR' && (
+      {currentUserRole === 'DOCTOR' && ( // Doctor specific section can remain or be merged above
         <>
           <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <DashboardCard
-              title="Patients"
-              description="Manage patient records and medical histories."
+              title="Pacientes"
+              description="Gestiona historiales médicos y de pacientes."
               icon={<Users className="h-6 w-6 text-primary" />}
-              value="0" // Placeholder, ideally fetched data
-              footerText="View All Patients"
+              value="0" 
+              footerText="Ver Todos los Pacientes"
               link="/patients"
             />
             <DashboardCard
-              title="Appointments"
-              description="View and schedule upcoming appointments."
+              title="Citas"
+              description="Consulta y programa próximas citas."
               icon={<CalendarDays className="h-6 w-6 text-primary" />}
-              value="0 Today" // Placeholder, ideally fetched data
-              footerText="Go to Calendar"
+              value="0 Hoy" 
+              footerText="Ir al Calendario"
               link="/appointments"
             />
             <DashboardCard
-              title="AI Diagnosis"
-              description="Utilize AI for diagnostic assistance."
+              title="Diagnóstico IA"
+              description="Utiliza IA para asistencia en diagnósticos."
               icon={<Brain className="h-6 w-6 text-primary" />}
-              value="Ready"
-              footerText="Start AI Diagnosis"
+              value="Listo"
+              footerText="Iniciar Diagnóstico IA"
               link="/ai-diagnosis"
             />
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold tracking-tight mb-4 text-foreground/90">Quick Actions</h2>
+            <h2 className="text-2xl font-semibold tracking-tight mb-4 text-foreground/90">Acciones Rápidas</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <QuickActionCard
-                title="New Patient"
+                title="Nuevo Paciente"
                 icon={<Users className="h-5 w-5" />}
                 href="/patients/new"
               />
               <QuickActionCard
-                title="New Appointment"
+                title="Nueva Cita"
                 icon={<CalendarDays className="h-5 w-5" />}
-                href="/appointments#new" // Assuming your appointment page handles this hash
+                href="/appointments#new" 
               />
               <QuickActionCard
-                title="Upload DICOM"
+                title="Subir DICOM"
                 icon={<HardDriveUpload className="h-5 w-5" />}
-                href="/patients" // Link to patients, then user can select patient to upload for
+                href="/patients" 
               />
               <QuickActionCard
-                title="View Reports"
+                title="Ver Informes"
                 icon={<FileText className="h-5 w-5" />}
-                href="/patients" // Link to patients, then user can select patient
+                href="/patients" 
               />
             </div>
           </section>
@@ -171,38 +169,38 @@ export default function DashboardPage() {
       {currentUserRole === 'PATIENT' && (
          <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <DashboardCard
-              title="My Appointments"
-              description="View and manage your upcoming appointments."
+              title="Mis Citas"
+              description="Consulta y gestiona tus próximas citas."
               icon={<CalendarDays className="h-6 w-6 text-primary" />}
-              value="0 Upcoming" // Placeholder, ideally fetched data
-              footerText="Go to My Appointments"
-              link="/my-appointments" // Ensure this route exists
+              value="0 Próximas" 
+              footerText="Ir a Mis Citas"
+              link="/my-appointments" 
             />
             <DashboardCard
-              title="My Medical Record"
-              description="Access your medical history and lab results."
+              title="Mi Historial Médico"
+              description="Accede a tu historial médico y resultados de laboratorio."
               icon={<FileText className="h-6 w-6 text-primary" />}
-              value="View"
-              footerText="Access My Records"
-              link="/my-medical-records" // Ensure this route exists
+              value="Ver"
+              footerText="Acceder a Mis Registros"
+              link="/my-medical-records" 
             />
             <DashboardCard
-              title="Schedule New Appointment"
-              description="Find a doctor and book a new consultation."
+              title="Programar Nueva Cita"
+              description="Encuentra un médico y reserva una nueva consulta."
               icon={<UserCheck className="h-6 w-6 text-primary" />}
-              value="Book Now"
-              footerText="Schedule Appointment"
-              link="/appointments#new" // Ensure this route exists and handles new appointment scheduling
+              value="Reservar Ahora"
+              footerText="Programar Cita"
+              link="/appointments#new" 
             />
           </section>
       )}
       
       <section>
-        <h2 className="text-2xl font-semibold tracking-tight mb-4 text-foreground/90">Recent Activity</h2>
+        <h2 className="text-2xl font-semibold tracking-tight mb-4 text-foreground/90">Actividad Reciente</h2>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-center h-32 border-2 border-dashed rounded-lg">
-              <p className="text-muted-foreground">No recent activity to display.</p>
+              <p className="text-muted-foreground">No hay actividad reciente para mostrar.</p>
             </div>
           </CardContent>
         </Card>
@@ -263,10 +261,7 @@ function QuickActionCard({ title, icon, href }: QuickActionCardProps) {
   )
 }
 
-// Simple toast function to avoid importing full useToast if not already used
-// In a real app, you'd likely have a global toast context or utility
 const toast = (options: { title: string, description: string, variant?: 'destructive' | 'default' }) => {
-    // This is a placeholder. In a real app, integrate with your toast system.
     console.log(`Toast: ${options.title} - ${options.description} (${options.variant})`);
     if (typeof window !== 'undefined' && options.variant === 'destructive') {
         alert(`Error: ${options.title}\n${options.description}`);

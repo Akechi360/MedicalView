@@ -47,12 +47,11 @@ export function PatientListClient({ initialPatients }: PatientListClientProps) {
   }, [patients, searchTerm]);
 
   const handleDeletePatient = (patientId: string) => {
-    // Placeholder for actual delete logic
-    console.log('Deleting patient (placeholder):', patientId);
+    console.log('Eliminando paciente (simulado):', patientId);
     setPatients(prev => prev.filter(p => p.id !== patientId));
     toast({
-      title: "Patient Deleted (Placeholder)",
-      description: `Patient with ID ${patientId} has been removed from the list.`,
+      title: "Paciente Eliminado (Simulado)",
+      description: `El paciente con ID ${patientId} ha sido eliminado de la lista.`,
       variant: "destructive",
     });
   };
@@ -63,7 +62,7 @@ export function PatientListClient({ initialPatients }: PatientListClientProps) {
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search patients by name, ID, or email..."
+          placeholder="Buscar pacientes por nombre, ID o correo electrónico..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-8 w-full md:w-1/3"
@@ -75,11 +74,11 @@ export function PatientListClient({ initialPatients }: PatientListClientProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Full Name</TableHead>
-                <TableHead>Date of Birth</TableHead>
-                <TableHead>Gender</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Nombre Completo</TableHead>
+                <TableHead>Fecha de Nacimiento</TableHead>
+                <TableHead>Género</TableHead>
+                <TableHead>Contacto</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -92,35 +91,35 @@ export function PatientListClient({ initialPatients }: PatientListClientProps) {
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">
                       <Link href={`/patients/${patient.id}`}>
-                        <Button variant="ghost" size="icon" title="View Details">
+                        <Button variant="ghost" size="icon" title="Ver Detalles">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </Link>
                       <Link href={`/patients/${patient.id}/edit`}>
-                        <Button variant="ghost" size="icon" title="Edit Patient">
+                        <Button variant="ghost" size="icon" title="Editar Paciente">
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" title="Delete Patient" className="text-destructive hover:text-destructive/90">
+                          <Button variant="ghost" size="icon" title="Eliminar Paciente" className="text-destructive hover:text-destructive/90">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete the patient's record.
+                              Esta acción no se puede deshacer. Esto eliminará permanentemente el registro del paciente.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDeletePatient(patient.id)}
                               className="bg-destructive hover:bg-destructive/90"
                             >
-                              Delete
+                              Eliminar
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -135,9 +134,9 @@ export function PatientListClient({ initialPatients }: PatientListClientProps) {
       ) : (
         <div className="flex flex-col items-center justify-center text-center py-12 border-2 border-dashed rounded-lg bg-card">
           <Users className="h-16 w-16 text-muted-foreground mb-4" />
-          <h3 className="text-xl font-semibold text-foreground">No Patients Found</h3>
+          <h3 className="text-xl font-semibold text-foreground">No se Encontraron Pacientes</h3>
           <p className="text-muted-foreground">
-            {searchTerm ? "Try adjusting your search criteria." : "Get started by adding a new patient."}
+            {searchTerm ? "Intenta ajustar tus criterios de búsqueda." : "Comienza añadiendo un nuevo paciente."}
           </p>
         </div>
       )}

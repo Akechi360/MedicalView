@@ -12,37 +12,37 @@ export default function RegisterPage() {
             <UserPlus className="h-10 w-10 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-primary">
-            Create Account
+            Crear Cuenta
           </h1>
           <p className="text-sm text-muted-foreground">
-            Join MediView Hub as a Doctor or Patient.
+            Únete a MediView Hub como Médico o Paciente.
           </p>
         </div>
         <RegisterForm />
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
+          ¿Ya tienes una cuenta?{' '}
           <Link
             href="/login"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Login here
+            Inicia sesión aquí
           </Link>
           .
         </p>
          <p className="px-8 text-center text-sm text-muted-foreground mt-2">
-          By registering, you agree to our{' '}
+          Al registrarte, aceptas nuestros{' '}
           <a
             href="/terms"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Terms of Service
+            Términos de Servicio
           </a>{' '}
-          and{' '}
+          y{' '}
           <a
             href="/privacy"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Privacy Policy
+            Política de Privacidad
           </a>
           .
         </p>

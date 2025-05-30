@@ -8,13 +8,13 @@ export default function NewPatientPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/patients">
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" aria-label="Volver a pacientes">
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary">Add New Patient</h1>
-            <p className="text-muted-foreground">Fill in the details to create a new patient profile.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">Añadir Nuevo Paciente</h1>
+            <p className="text-muted-foreground">Complete los detalles para crear un nuevo perfil de paciente.</p>
         </div>
       </div>
       <PatientFormClient />

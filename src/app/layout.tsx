@@ -12,7 +12,7 @@ const lato = Lato({
 
 export const metadata: Metadata = {
   title: 'MediView Hub',
-  description: 'Comprehensive patient management for medical professionals.',
+  description: 'Gestión integral de pacientes para profesionales médicos.',
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body className={`${lato.variable} font-sans antialiased`}>
         {children}
         <Toaster />

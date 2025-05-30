@@ -8,26 +8,22 @@ import { format } from 'date-fns';
 
 // Placeholder fetch functions - replace with actual data fetching logic
 async function getPatientDetails(patientId: string): Promise<Patient | null> {
-  console.log(`Fetching patient details for ID: ${patientId}`);
-  // Mock data removed, returning null to simulate not found or real fetch pending
+  console.log(`Obteniendo detalles del paciente ID: ${patientId}`);
   return Promise.resolve(null);
 }
 
 async function getMedicalHistory(patientId: string): Promise<MedicalRecordEntry[]> {
-  console.log(`Fetching medical history for patient ID: ${patientId}`);
-  // Mock data removed
+  console.log(`Obteniendo historial médico para paciente ID: ${patientId}`);
   return Promise.resolve([]);
 }
 
 async function getLabResults(patientId: string): Promise<LabResult[]> {
-  console.log(`Fetching lab results for patient ID: ${patientId}`);
-  // Mock data removed
+  console.log(`Obteniendo resultados de laboratorio para paciente ID: ${patientId}`);
   return Promise.resolve([]);
 }
 
 async function getDicomStudies(patientId: string): Promise<DicomStudy[]> {
-  console.log(`Fetching DICOM studies for patient ID: ${patientId}`);
-  // Mock data removed
+  console.log(`Obteniendo estudios DICOM para paciente ID: ${patientId}`);
   return Promise.resolve([]);
 }
 
@@ -43,11 +39,11 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-8">
         <User className="w-16 h-16 text-destructive mb-4" />
-        <h1 className="text-2xl font-bold text-destructive">Patient Not Found</h1>
-        <p className="text-muted-foreground">The patient with ID "{params.patientId}" could not be found.</p>
+        <h1 className="text-2xl font-bold text-destructive">Paciente No Encontrado</h1>
+        <p className="text-muted-foreground">El paciente con ID "{params.patientId}" no pudo ser encontrado.</p>
         <Link href="/patients" className="mt-6">
           <Button variant="outline">
-            <ChevronLeft className="mr-2 h-4 w-4" /> Back to Patient List
+            <ChevronLeft className="mr-2 h-4 w-4" /> Volver a la Lista de Pacientes
           </Button>
         </Link>
       </div>
@@ -61,7 +57,7 @@ export default async function PatientDetailPage({ params }: { params: { patientI
     <div className="space-y-6">
       <div className="flex items-center gap-4 mb-6 pb-6 border-b">
         <Link href="/patients">
-          <Button variant="outline" size="icon" aria-label="Back to patients">
+          <Button variant="outline" size="icon" aria-label="Volver a pacientes">
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </Link>
@@ -72,11 +68,11 @@ export default async function PatientDetailPage({ params }: { params: { patientI
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">{patient.fullName}</h1>
           <p className="text-muted-foreground">
-            {patient.gender}  ·  {age} years old  ·  ID: {patient.nationalId || 'N/A'}
+            {patient.gender === 'MALE' ? 'Masculino' : patient.gender === 'FEMALE' ? 'Femenino' : patient.gender}  ·  {age} años  ·  ID: {patient.nationalId || 'N/A'}
           </p>
         </div>
         <Link href={`/patients/${patient.id}/edit`} className="ml-auto">
-            <Button variant="outline">Edit Profile</Button>
+            <Button variant="outline">Editar Perfil</Button>
         </Link>
       </div>
 

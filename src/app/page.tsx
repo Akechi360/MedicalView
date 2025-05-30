@@ -12,37 +12,37 @@ export default function HomePage() {
             <Stethoscope className="h-10 w-10 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-primary">
-            MediView Hub Login
+            Iniciar Sesión en MediView Hub
           </h1>
           <p className="text-sm text-muted-foreground">
-            Select your role and enter your credentials.
+            Selecciona tu rol e ingresa tus credenciales.
           </p>
         </div>
         <LoginForm />
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
+          ¿No tienes una cuenta?{' '}
           <Link
             href="/register"
             className="underline underline-offset-4 hover:text-primary"
           >
-            Register here
+            Regístrate aquí
           </Link>
           .
         </p>
         <p className="px-8 text-center text-sm text-muted-foreground mt-2">
-          By continuing, you agree to our{' '}
+          Al continuar, aceptas nuestros{' '}
           <a
             href="/terms" // Placeholder link
             className="underline underline-offset-4 hover:text-primary"
           >
-            Terms of Service
+            Términos de Servicio
           </a>{' '}
-          and{' '}
+          y{' '}
           <a
             href="/privacy" // Placeholder link
             className="underline underline-offset-4 hover:text-primary"
           >
-            Privacy Policy
+            Política de Privacidad
           </a>
           .
         </p>

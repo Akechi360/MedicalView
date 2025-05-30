@@ -29,16 +29,16 @@ import { CalendarIcon, User, Cake, Phone, Mail, MapPin, AlertTriangle, Pill } fr
 import { format } from 'date-fns';
 import type { Patient } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation'; // Corrected import
+import { useRouter } from 'next/navigation'; 
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const patientFormSchema = z.object({
-  fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
-  dateOfBirth: z.date({ required_error: 'Date of birth is required.' }),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'], { required_error: 'Gender is required.' }),
+  fullName: z.string().min(2, { message: 'El nombre completo debe tener al menos 2 caracteres.' }),
+  dateOfBirth: z.date({ required_error: 'La fecha de nacimiento es obligatoria.' }),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'], { required_error: 'El género es obligatorio.' }),
   nationalId: z.string().optional(),
   contactPhone: z.string().optional(),
-  contactEmail: z.string().email({ message: 'Invalid email address.' }).optional().or(z.literal('')),
+  contactEmail: z.string().email({ message: 'Dirección de correo electrónico inválida.' }).optional().or(z.literal('')),
   address: z.string().optional(),
   allergies: z.string().optional(),
   currentMedications: z.string().optional(),
@@ -47,7 +47,7 @@ const patientFormSchema = z.object({
 type PatientFormValues = z.infer<typeof patientFormSchema>;
 
 interface PatientFormClientProps {
-  initialData?: Patient; // For editing
+  initialData?: Patient; 
 }
 
 export function PatientFormClient({ initialData }: PatientFormClientProps) {
@@ -60,11 +60,11 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
     defaultValues: initialData
       ? {
           ...initialData,
-          dateOfBirth: new Date(initialData.dateOfBirth), // Ensure date is a Date object
+          dateOfBirth: new Date(initialData.dateOfBirth), 
         }
       : {
           fullName: '',
-          gender: undefined, // Set undefined for Select placeholder to work
+          gender: undefined, 
           nationalId: '',
           contactPhone: '',
           contactEmail: '',
@@ -75,13 +75,12 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
   });
 
   async function onSubmit(data: PatientFormValues) {
-    // Placeholder for actual save logic
-    console.log('Patient data:', data);
+    console.log('Datos del paciente:', data);
     toast({
-      title: isEditing ? 'Patient Updated (Placeholder)' : 'Patient Created (Placeholder)',
-      description: `Patient ${data.fullName} has been ${isEditing ? 'updated' : 'saved'}.`,
+      title: isEditing ? 'Paciente Actualizado (Simulado)' : 'Paciente Creado (Simulado)',
+      description: `El paciente ${data.fullName} ha sido ${isEditing ? 'actualizado' : 'guardado'}.`,
     });
-    router.push('/patients'); // Redirect to patient list after save
+    router.push('/patients'); 
   }
 
   return (
@@ -89,7 +88,7 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2"><User className="text-primary"/> Basic Information</CardTitle>
+            <CardTitle className="text-xl flex items-center gap-2"><User className="text-primary"/> Información Básica</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -97,9 +96,9 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Nombre Completo</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="Juan Pérez" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -111,7 +110,7 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
                 name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date of Birth</FormLabel>
+                    <FormLabel>Fecha de Nacimiento</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -125,7 +124,7 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
                             {field.value ? (
                               format(field.value, 'PPP')
                             ) : (
-                              <span>Pick a date</span>
+                              <span>Seleccionar fecha</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -152,18 +151,18 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gender</FormLabel>
+                    <FormLabel>Género</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select gender" />
+                          <SelectValue placeholder="Seleccionar género" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
-                        <SelectItem value="OTHER">Other</SelectItem>
-                        <SelectItem value="PREFER_NOT_TO_SAY">Prefer not to say</SelectItem>
+                        <SelectItem value="MALE">Masculino</SelectItem>
+                        <SelectItem value="FEMALE">Femenino</SelectItem>
+                        <SelectItem value="OTHER">Otro</SelectItem>
+                        <SelectItem value="PREFER_NOT_TO_SAY">Prefiero no decirlo</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -176,7 +175,7 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
               name="nationalId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>National ID / DNI</FormLabel>
+                  <FormLabel>ID Nacional / DNI</FormLabel>
                   <FormControl>
                     <Input placeholder="12345678A" {...field} />
                   </FormControl>
@@ -189,7 +188,7 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2"><Phone className="text-primary"/> Contact Information</CardTitle>
+            <CardTitle className="text-xl flex items-center gap-2"><Phone className="text-primary"/> Información de Contacto</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -197,9 +196,9 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
               name="contactPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>Número de Teléfono</FormLabel>
                   <FormControl>
-                    <Input type="tel" placeholder="+1 123 456 7890" {...field} />
+                    <Input type="tel" placeholder="+34 123 456 789" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -210,9 +209,9 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
               name="contactEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel>Correo Electrónico</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="patient@example.com" {...field} />
+                    <Input type="email" placeholder="paciente@ejemplo.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -223,9 +222,9 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>Dirección</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="123 Main St, Anytown, USA" {...field} />
+                    <Textarea placeholder="Calle Principal 123, Ciudad, País" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -236,7 +235,7 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
         
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2"><AlertTriangle className="text-primary"/> Medical Information</CardTitle>
+            <CardTitle className="text-xl flex items-center gap-2"><AlertTriangle className="text-primary"/> Información Médica</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
              <FormField
@@ -244,11 +243,11 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
               name="allergies"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Allergies</FormLabel>
+                  <FormLabel>Alergias</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="e.g., Penicillin, Peanuts" {...field} />
+                    <Textarea placeholder="Ej: Penicilina, Cacahuetes" {...field} />
                   </FormControl>
-                  <FormDescription>List known allergies, separated by commas.</FormDescription>
+                  <FormDescription>Liste las alergias conocidas, separadas por comas.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -258,11 +257,11 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
               name="currentMedications"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Medications</FormLabel>
+                  <FormLabel>Medicamentos Actuales</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="e.g., Metformin 500mg daily, Lisinopril 10mg daily" {...field} />
+                    <Textarea placeholder="Ej: Metformina 500mg diarios, Lisinopril 10mg diarios" {...field} />
                   </FormControl>
-                  <FormDescription>List current medications and dosages.</FormDescription>
+                  <FormDescription>Liste los medicamentos actuales y sus dosis.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -272,10 +271,10 @@ export function PatientFormClient({ initialData }: PatientFormClientProps) {
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={() => router.back()}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" className="bg-primary hover:bg-primary/90">
-            {isEditing ? 'Save Changes' : 'Create Patient'}
+            {isEditing ? 'Guardar Cambios' : 'Crear Paciente'}
           </Button>
         </div>
       </form>

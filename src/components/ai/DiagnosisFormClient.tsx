@@ -21,8 +21,8 @@ import React, { useState } from 'react';
 import { Loader2, Lightbulb, AlertTriangle } from 'lucide-react';
 
 const diagnosisFormSchema = z.object({
-  medicalHistory: z.string().min(10, { message: 'Medical history must be at least 10 characters.' }),
-  currentSymptoms: z.string().min(10, { message: 'Current symptoms must be at least 10 characters.' }),
+  medicalHistory: z.string().min(10, { message: 'El historial médico debe tener al menos 10 caracteres.' }),
+  currentSymptoms: z.string().min(10, { message: 'Los síntomas actuales deben tener al menos 10 caracteres.' }),
 });
 
 type DiagnosisFormValues = z.infer<typeof diagnosisFormSchema>;
@@ -53,16 +53,16 @@ export function DiagnosisFormClient() {
       const result = await suggestDiagnosis(input);
       setDiagnosisResult(result);
       toast({
-        title: 'Diagnosis Suggested',
-        description: 'AI has provided diagnostic suggestions.',
+        title: 'Diagnóstico Sugerido',
+        description: 'La IA ha proporcionado sugerencias de diagnóstico.',
       });
     } catch (err) {
-      console.error('AI Diagnosis Error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      setError(`Failed to get diagnosis: ${errorMessage}`);
+      console.error('Error de Diagnóstico IA:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Ocurrió un error desconocido.';
+      setError(`Error al obtener el diagnóstico: ${errorMessage}`);
       toast({
         title: 'Error',
-        description: `Failed to get diagnosis: ${errorMessage}`,
+        description: `Error al obtener el diagnóstico: ${errorMessage}`,
         variant: 'destructive',
       });
     } finally {
@@ -73,9 +73,9 @@ export function DiagnosisFormClient() {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl">Patient Information</CardTitle>
+        <CardTitle className="text-2xl">Información del Paciente</CardTitle>
         <CardDescription>
-          Provide detailed medical history and current symptoms for analysis.
+          Proporcione el historial médico detallado y los síntomas actuales para el análisis.
         </CardDescription>
       </CardHeader>
       <Form {...form}>
@@ -86,16 +86,16 @@ export function DiagnosisFormClient() {
               name="medicalHistory"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Medical History</FormLabel>
+                  <FormLabel className="text-lg">Historial Médico</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Patient is a 45-year-old male with a history of hypertension and type 2 diabetes..."
+                      placeholder="Ej: Paciente masculino de 45 años con antecedentes de hipertensión y diabetes tipo 2..."
                       className="min-h-[150px] resize-y"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Include past illnesses, surgeries, medications, allergies, family history, and relevant lifestyle factors.
+                    Incluya enfermedades pasadas, cirugías, medicamentos, alergias, antecedentes familiares y factores de estilo de vida relevantes.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -106,16 +106,16 @@ export function DiagnosisFormClient() {
               name="currentSymptoms"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Current Symptoms</FormLabel>
+                  <FormLabel className="text-lg">Síntomas Actuales</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., Reports persistent cough for 2 weeks, low-grade fever, fatigue, and occasional shortness of breath..."
+                      placeholder="Ej: Refiere tos persistente desde hace 2 semanas, fiebre baja, fatiga y disnea ocasional..."
                       className="min-h-[150px] resize-y"
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    Describe all current symptoms, including onset, duration, severity, and any aggravating or relieving factors.
+                    Describa todos los síntomas actuales, incluyendo inicio, duración, gravedad y cualquier factor agravante o atenuante.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -123,14 +123,14 @@ export function DiagnosisFormClient() {
             />
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button type="submit" disabled={isLoading} className="min-w-[180px]">
+            <Button type="submit" disabled={isLoading} className="min-w-[220px]">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
+                  Analizando...
                 </>
               ) : (
-                'Get AI Diagnosis Suggestions'
+                'Obtener Sugerencias de Diagnóstico IA'
               )}
             </Button>
           </CardFooter>
@@ -142,7 +142,7 @@ export function DiagnosisFormClient() {
            <div className="flex items-start text-destructive">
             <AlertTriangle className="h-6 w-6 mr-3 flex-shrink-0" />
             <div>
-                <h3 className="font-semibold text-lg">Analysis Error</h3>
+                <h3 className="font-semibold text-lg">Error de Análisis</h3>
                 <p className="text-sm">{error}</p>
             </div>
            </div>
@@ -153,12 +153,12 @@ export function DiagnosisFormClient() {
         <div className="p-6 border-t">
           <div className="flex items-center text-primary mb-4">
             <Lightbulb className="h-8 w-8 mr-3" />
-            <h2 className="text-2xl font-semibold">AI Diagnostic Suggestions</h2>
+            <h2 className="text-2xl font-semibold">Sugerencias de Diagnóstico IA</h2>
           </div>
           
           <div className="space-y-4">
             <div>
-              <h3 className="text-xl font-medium mb-2">Possible Diagnoses / Next Steps:</h3>
+              <h3 className="text-xl font-medium mb-2">Posibles Diagnósticos / Próximos Pasos:</h3>
               {diagnosisResult.suggestions.length > 0 ? (
                 <ul className="list-disc list-inside space-y-1 bg-muted/50 p-4 rounded-md">
                   {diagnosisResult.suggestions.map((suggestion, index) => (
@@ -166,13 +166,13 @@ export function DiagnosisFormClient() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-muted-foreground">No specific suggestions provided.</p>
+                <p className="text-muted-foreground">No se proporcionaron sugerencias específicas.</p>
               )}
             </div>
             
             <div>
-              <h3 className="text-xl font-medium mb-2">Reasoning:</h3>
-              <p className="text-foreground/90 whitespace-pre-wrap bg-muted/50 p-4 rounded-md">{diagnosisResult.reasoning || "No reasoning provided."}</p>
+              <h3 className="text-xl font-medium mb-2">Razonamiento:</h3>
+              <p className="text-foreground/90 whitespace-pre-wrap bg-muted/50 p-4 rounded-md">{diagnosisResult.reasoning || "No se proporcionó razonamiento."}</p>
             </div>
           </div>
         </div>

@@ -29,11 +29,11 @@ import { registerUser, type AuthResponse } from '@/lib/auth.service';
 
 
 const registerSchemaBase = z.object({
-  fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  confirmPassword: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(['DOCTOR', 'PATIENT'], { required_error: "You must select a role."}),
+  fullName: z.string().min(2, { message: "El nombre completo debe tener al menos 2 caracteres." }),
+  email: z.string().email({ message: "Dirección de correo electrónico inválida." }),
+  password: z.string().min(8, { message: "La contraseña debe tener al menos 8 caracteres." }),
+  confirmPassword: z.string().min(8, { message: "La contraseña debe tener al menos 8 caracteres." }),
+  role: z.enum(['DOCTOR', 'PATIENT'], { required_error: "Debes seleccionar un rol."}),
 });
 
 const registerSchema = registerSchemaBase.extend({
@@ -41,7 +41,7 @@ const registerSchema = registerSchemaBase.extend({
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
   specialty: z.string().optional(),
 }).refine(data => data.password === data.confirmPassword, {
-  message: "Passwords do not match.",
+  message: "Las contraseñas no coinciden.",
   path: ["confirmPassword"],
 }).refine(data => {
     if (data.role === 'PATIENT') {
@@ -49,7 +49,7 @@ const registerSchema = registerSchemaBase.extend({
     }
     return true;
 }, {
-    message: "Date of birth and gender are required for patients.",
+    message: "La fecha de nacimiento y el género son obligatorios para los pacientes.",
     path: ["dateOfBirth"], 
 });
 
@@ -89,14 +89,14 @@ export function RegisterForm() {
 
     if (result.success) {
       toast({
-        title: 'Registration Successful',
+        title: 'Registro Exitoso',
         description: result.message,
       });
       router.push('/login');
     } else {
       toast({
-        title: 'Registration Failed',
-        description: result.message || 'An unexpected error occurred.',
+        title: 'Registro Fallido',
+        description: result.message || 'Ocurrió un error inesperado.',
         variant: 'destructive',
       });
     }
@@ -111,7 +111,7 @@ export function RegisterForm() {
           name="role"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>I want to register as a...</FormLabel>
+              <FormLabel>Quiero registrarme como...</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -123,7 +123,7 @@ export function RegisterForm() {
                       <RadioGroupItem value="DOCTOR" id="role-doctor-reg" disabled={isLoading}/>
                     </FormControl>
                     <FormLabel htmlFor="role-doctor-reg" className="font-normal flex items-center">
-                      <BriefcaseMedical className="mr-2 h-4 w-4 text-primary" /> Doctor
+                      <BriefcaseMedical className="mr-2 h-4 w-4 text-primary" /> Médico
                     </FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
@@ -131,7 +131,7 @@ export function RegisterForm() {
                       <RadioGroupItem value="PATIENT" id="role-patient-reg" disabled={isLoading}/>
                     </FormControl>
                     <FormLabel htmlFor="role-patient-reg" className="font-normal flex items-center">
-                      <UserIcon className="mr-2 h-4 w-4 text-primary" /> Patient
+                      <UserIcon className="mr-2 h-4 w-4 text-primary" /> Paciente
                     </FormLabel>
                   </FormItem>
                 </RadioGroup>
@@ -146,11 +146,11 @@ export function RegisterForm() {
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>Nombre Completo</FormLabel>
               <FormControl>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="John Doe" {...field} className="pl-10" disabled={isLoading}/>
+                  <Input placeholder="Juan Pérez" {...field} className="pl-10" disabled={isLoading}/>
                 </div>
               </FormControl>
               <FormMessage />
@@ -162,11 +162,11 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email Address</FormLabel>
+              <FormLabel>Correo Electrónico</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input type="email" placeholder="name@example.com" {...field} className="pl-10" disabled={isLoading}/>
+                  <Input type="email" placeholder="nombre@ejemplo.com" {...field} className="pl-10" disabled={isLoading}/>
                 </div>
               </FormControl>
               <FormMessage />
@@ -178,7 +178,7 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Contraseña</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -195,7 +195,7 @@ export function RegisterForm() {
                     size="icon"
                     className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -211,7 +211,7 @@ export function RegisterForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel>Confirmar Contraseña</FormLabel>
               <FormControl>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -228,7 +228,7 @@ export function RegisterForm() {
                     size="icon"
                     className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     disabled={isLoading}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -247,7 +247,7 @@ export function RegisterForm() {
               name="dateOfBirth"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Date of Birth</FormLabel>
+                  <FormLabel>Fecha de Nacimiento</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -262,7 +262,7 @@ export function RegisterForm() {
                           {field.value ? (
                             format(field.value, 'PPP')
                           ) : (
-                            <span className="flex items-center"><Cake className="mr-2 h-4 w-4 text-muted-foreground" />Pick a date</span>
+                            <span className="flex items-center"><Cake className="mr-2 h-4 w-4 text-muted-foreground" />Seleccionar fecha</span>
                           )}
                           <CalendarIconLucide className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -289,19 +289,19 @@ export function RegisterForm() {
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gender</FormLabel>
+                  <FormLabel>Género</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
                     <FormControl>
                       <SelectTrigger>
                         <VenetianMask className="mr-2 h-4 w-4 text-muted-foreground inline-block" /> 
-                        <SelectValue placeholder="Select gender" />
+                        <SelectValue placeholder="Seleccionar género" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="MALE">Male</SelectItem>
-                      <SelectItem value="FEMALE">Female</SelectItem>
-                      <SelectItem value="OTHER">Other</SelectItem>
-                      <SelectItem value="PREFER_NOT_TO_SAY">Prefer not to say</SelectItem>
+                      <SelectItem value="MALE">Masculino</SelectItem>
+                      <SelectItem value="FEMALE">Femenino</SelectItem>
+                      <SelectItem value="OTHER">Otro</SelectItem>
+                      <SelectItem value="PREFER_NOT_TO_SAY">Prefiero no decirlo</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -317,11 +317,11 @@ export function RegisterForm() {
             name="specialty"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Specialty (Optional)</FormLabel>
+                <FormLabel>Especialidad (Opcional)</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <BriefcaseMedical className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="e.g., Cardiology, Pediatrics" {...field} className="pl-10" disabled={isLoading}/>
+                    <Input placeholder="Ej: Cardiología, Pediatría" {...field} className="pl-10" disabled={isLoading}/>
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -332,7 +332,7 @@ export function RegisterForm() {
 
         <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isLoading ? 'Registering...' : 'Register'}
+          {isLoading ? 'Registrando...' : 'Registrar'}
         </Button>
       </form>
     </Form>

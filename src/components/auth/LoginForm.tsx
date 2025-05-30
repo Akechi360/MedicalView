@@ -21,12 +21,12 @@ import { Mail, Lock, Eye, EyeOff, User, BriefcaseMedical, ShieldAlert, Loader2 }
 import React from 'react';
 import type { UserRole } from '@/types';
 import { loginUser, type AuthResponse } from '@/lib/auth.service';
-// Firebase specific imports for Google Sign-In are removed
+
 
 const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
-  role: z.enum(['DOCTOR', 'PATIENT', 'ADMIN'], { required_error: "You must select a role."})
+  email: z.string().email({ message: 'Dirección de correo electrónico inválida.' }),
+  password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
+  role: z.enum(['DOCTOR', 'PATIENT', 'ADMIN'], { required_error: "Debes seleccionar un rol."})
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -60,8 +60,8 @@ export function LoginForm() {
 
     if (result.success && result.user) {
       toast({
-        title: 'Login Successful',
-        description: `Welcome, ${result.user.name || result.user.email}! Role: ${result.user.role}.`,
+        title: 'Inicio de Sesión Exitoso',
+        description: `¡Bienvenido, ${result.user.name || result.user.email}! Rol: ${result.user.role}.`,
       });
       if (typeof window !== 'undefined') {
         localStorage.setItem(USER_ROLE_KEY, result.user.role);
@@ -70,15 +70,13 @@ export function LoginForm() {
       router.push('/dashboard');
     } else {
        toast({
-        title: 'Login Failed',
-        description: result.message || 'An unexpected error occurred.',
+        title: 'Inicio de Sesión Fallido',
+        description: result.message || 'Ocurrió un error inesperado.',
         variant: 'destructive',
       });
     }
     setIsLoading(false);
   }
-
-  // handleGoogleSignIn function and related logic removed
 
   return (
     <div className="grid gap-6">
@@ -89,7 +87,7 @@ export function LoginForm() {
             name="role"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>I am a...</FormLabel>
+                <FormLabel>Soy un...</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -101,7 +99,7 @@ export function LoginForm() {
                         <RadioGroupItem value="DOCTOR" id="role-doctor" disabled={isLoading} />
                       </FormControl>
                       <FormLabel htmlFor="role-doctor" className="font-normal flex items-center">
-                        <BriefcaseMedical className="mr-2 h-4 w-4 text-primary" /> Doctor
+                        <BriefcaseMedical className="mr-2 h-4 w-4 text-primary" /> Médico
                       </FormLabel>
                     </FormItem>
                     <FormItem className="flex items-center space-x-3 space-y-0">
@@ -109,7 +107,7 @@ export function LoginForm() {
                         <RadioGroupItem value="PATIENT" id="role-patient" disabled={isLoading}/>
                       </FormControl>
                       <FormLabel htmlFor="role-patient" className="font-normal flex items-center">
-                        <User className="mr-2 h-4 w-4 text-primary" /> Patient
+                        <User className="mr-2 h-4 w-4 text-primary" /> Paciente
                       </FormLabel>
                     </FormItem>
                      <FormItem className="flex items-center space-x-3 space-y-0">
@@ -131,11 +129,11 @@ export function LoginForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address</FormLabel>
+                <FormLabel>Correo Electrónico</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="name@example.com" {...field} className="pl-10" disabled={isLoading}/>
+                    <Input placeholder="nombre@ejemplo.com" {...field} className="pl-10" disabled={isLoading}/>
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -147,7 +145,7 @@ export function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Contraseña</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -164,7 +162,7 @@ export function LoginForm() {
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                       onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                       disabled={isLoading}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -177,11 +175,10 @@ export function LoginForm() {
           />
           <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLoading ? 'Signing In...' : 'Sign In'}
+            {isLoading ? 'Iniciando Sesión...' : 'Iniciar Sesión'}
           </Button>
         </form>
       </Form>
-      {/* "Or continue with" separator and Google Sign-In button removed */}
     </div>
   );
 }

@@ -26,7 +26,7 @@ const USER_DATA_KEY = 'currentUserData';
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const [userName, setUserName] = useState<string>("User");
+  const [userName, setUserName] = useState<string>("Usuario");
   const [userInitial, setUserInitial] = useState<string>("U");
 
 
@@ -36,20 +36,20 @@ export function Header() {
       if (storedUserData) {
         try {
           const userData = JSON.parse(storedUserData);
-          const name = userData.name || userData.email || "User";
+          const name = userData.name || userData.email || "Usuario";
           setUserName(name);
           setUserInitial(name.charAt(0).toUpperCase());
         } catch (e) {
-          console.error("Failed to parse user data from localStorage", e);
-          setUserName("User");
+          console.error("Error al parsear datos de usuario desde localStorage", e);
+          setUserName("Usuario");
           setUserInitial("U");
         }
       } else {
-        setUserName("User");
+        setUserName("Usuario");
         setUserInitial("U");
       }
     }
-  }, [pathname]); // Re-run on pathname change to update if user logs in/out
+  }, [pathname]); 
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
@@ -72,7 +72,7 @@ export function Header() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search patients, appointments..."
+              placeholder="Buscar pacientes, citas..."
               className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
             />
           </div>
@@ -81,32 +81,31 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
               <Avatar>
-                {/* In a real app, src would be dynamic */}
                 <AvatarImage src={`https://placehold.co/40x40.png?text=${userInitial}`} alt={userName} data-ai-hint="user avatar"/>
                 <AvatarFallback>{userInitial}</AvatarFallback>
               </Avatar>
-              <span className="sr-only">Toggle user menu</span>
+              <span className="sr-only">Alternar menú de usuario</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account ({userName})</DropdownMenuLabel>
+            <DropdownMenuLabel>Mi Cuenta ({userName})</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/profile"> {/* Placeholder link */}
+              <Link href="/profile"> 
                 <UserCircle className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>Perfil</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/settings"> {/* Placeholder link */}
+              <Link href="/settings"> 
                 <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <span>Configuración</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
+              <span>Cerrar Sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

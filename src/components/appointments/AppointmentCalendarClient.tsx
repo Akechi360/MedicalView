@@ -38,10 +38,10 @@ interface AppointmentCalendarClientProps {
 }
 
 const appointmentFormSchema = z.object({
-  patientFullName: z.string().min(1, "Patient name is required"),
-  dateTime: z.date({ required_error: "Date and time are required" }),
-  time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),
-  durationMinutes: z.number().min(5, "Duration must be at least 5 minutes"),
+  patientFullName: z.string().min(1, "El nombre del paciente es obligatorio"),
+  dateTime: z.date({ required_error: "La fecha y hora son obligatorias" }),
+  time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato de hora inválido (HH:mm)"),
+  durationMinutes: z.number().min(5, "La duración debe ser de al menos 5 minutos"),
   reason: z.string().optional(),
   status: z.enum(['SCHEDULED', 'COMPLETED', 'CANCELED', 'RESCHEDULED']).default('SCHEDULED'),
 });
@@ -108,12 +108,11 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
   
   const handleNewAppointment = () => {
     setEditingAppointment(null);
-    // Reset form with selectedDate or today
     const baseDate = selectedDate || new Date();
     form.reset({
         patientFullName: '',
         dateTime: baseDate,
-        time: format(baseDate, "HH:mm"), // Default to current time or start of day
+        time: format(baseDate, "HH:mm"), 
         durationMinutes: 30,
         reason: '',
         status: 'SCHEDULED',
@@ -128,7 +127,7 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
 
   const handleDeleteAppointment = (appointmentId: string) => {
     setAppointments(prev => prev.filter(app => app.id !== appointmentId));
-    toast({ title: "Appointment Deleted (Placeholder)", variant: "destructive" });
+    toast({ title: "Cita Eliminada (Simulado)", variant: "destructive" });
   };
 
   function onSubmit(values: AppointmentFormValues) {
@@ -151,10 +150,10 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
 
     if (editingAppointment) {
       setAppointments(prev => prev.map(app => app.id === editingAppointment.id ? newOrUpdatedAppointment : app));
-      toast({ title: "Appointment Updated (Placeholder)" });
+      toast({ title: "Cita Actualizada (Simulado)" });
     } else {
       setAppointments(prev => [...prev, newOrUpdatedAppointment]);
-      toast({ title: "Appointment Scheduled (Placeholder)" });
+      toast({ title: "Cita Programada (Simulado)" });
     }
     setIsFormOpen(false);
     setEditingAppointment(null);
@@ -165,9 +164,9 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
       <div className="md:col-span-1 space-y-4">
         <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-medium">Calendar</CardTitle>
+                <CardTitle className="text-lg font-medium">Calendario</CardTitle>
                 <Button variant="default" size="sm" onClick={handleNewAppointment}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> New Appointment
+                    <PlusCircle className="mr-2 h-4 w-4" /> Nueva Cita
                 </Button>
             </CardHeader>
             <CardContent className="p-0">
@@ -203,11 +202,11 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
         {selectedDate && (
             <Card>
                 <CardHeader>
-                    <CardTitle>Quick Add for {format(selectedDate, 'PPP')}</CardTitle>
+                    <CardTitle>Añadir Rápido para {format(selectedDate, 'PPP')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Button className="w-full" onClick={handleNewAppointment}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Appointment
+                        <PlusCircle className="mr-2 h-4 w-4" /> Añadir Cita
                     </Button>
                 </CardContent>
             </Card>
@@ -218,7 +217,7 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
         <Card className="min-h-[500px]">
           <CardHeader>
             <CardTitle className="text-xl">
-              Appointments for {selectedDate ? format(selectedDate, 'PPP') : 'selected date'}
+              Citas para {selectedDate ? format(selectedDate, 'PPP') : 'fecha seleccionada'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -235,7 +234,7 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
               <div className="flex flex-col items-center justify-center text-center py-10 border-2 border-dashed rounded-lg h-full">
                  <Info className="h-12 w-12 text-muted-foreground mb-3" />
                 <p className="text-muted-foreground">
-                  {selectedDate ? "No appointments for this date." : "Select a date to view appointments."}
+                  {selectedDate ? "No hay citas para esta fecha." : "Selecciona una fecha para ver las citas."}
                 </p>
               </div>
             )}
@@ -246,9 +245,9 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{editingAppointment ? 'Edit Appointment' : 'New Appointment'}</DialogTitle>
+            <DialogTitle>{editingAppointment ? 'Editar Cita' : 'Nueva Cita'}</DialogTitle>
             <DialogDescription>
-              {editingAppointment ? 'Update the details for this appointment.' : `Schedule a new appointment for ${selectedDate ? format(selectedDate, 'PPP') : ''}.`}
+              {editingAppointment ? 'Actualiza los detalles de esta cita.' : `Programa una nueva cita para ${selectedDate ? format(selectedDate, 'PPP') : ''}.`}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -258,8 +257,8 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                 name="patientFullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Patient Name</FormLabel>
-                    <FormControl><Input placeholder="John Doe" {...field} /></FormControl>
+                    <FormLabel>Nombre del Paciente</FormLabel>
+                    <FormControl><Input placeholder="Juan Pérez" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -270,7 +269,7 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                     name="dateTime"
                     render={({ field }) => (
                     <FormItem className="flex flex-col">
-                        <FormLabel>Date</FormLabel>
+                        <FormLabel>Fecha</FormLabel>
                         <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
@@ -278,7 +277,7 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                                 variant={'outline'}
                                 className={cn('w-full pl-3 text-left font-normal',!field.value && 'text-muted-foreground')}
                             >
-                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                {field.value ? format(field.value, 'PPP') : <span>Seleccionar fecha</span>}
                                 <ChevronRight className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                             </FormControl>
@@ -296,7 +295,7 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                     name="time"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Time (HH:mm)</FormLabel>
+                        <FormLabel>Hora (HH:mm)</FormLabel>
                         <FormControl><Input type="time" {...field} /></FormControl>
                         <FormMessage />
                     </FormItem>
@@ -308,7 +307,7 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                 name="durationMinutes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duration (minutes)</FormLabel>
+                    <FormLabel>Duración (minutos)</FormLabel>
                     <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -319,8 +318,8 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                 name="reason"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reason for Appointment</FormLabel>
-                    <FormControl><Textarea placeholder="e.g., Annual checkup, follow-up" {...field} /></FormControl>
+                    <FormLabel>Motivo de la Cita</FormLabel>
+                    <FormControl><Textarea placeholder="Ej: Chequeo anual, seguimiento" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -330,14 +329,14 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel>Estado</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Seleccionar estado" /></SelectTrigger></FormControl>
                       <SelectContent>
-                        <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                        <SelectItem value="COMPLETED">Completed</SelectItem>
-                        <SelectItem value="CANCELED">Canceled</SelectItem>
-                        <SelectItem value="RESCHEDULED">Rescheduled</SelectItem>
+                        <SelectItem value="SCHEDULED">Programada</SelectItem>
+                        <SelectItem value="COMPLETED">Completada</SelectItem>
+                        <SelectItem value="CANCELED">Cancelada</SelectItem>
+                        <SelectItem value="RESCHEDULED">Reprogramada</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -345,8 +344,8 @@ export function AppointmentCalendarClient({ initialAppointments }: AppointmentCa
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Cancel</Button>
-                <Button type="submit">{editingAppointment ? 'Save Changes' : 'Schedule Appointment'}</Button>
+                <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
+                <Button type="submit">{editingAppointment ? 'Guardar Cambios' : 'Programar Cita'}</Button>
               </DialogFooter>
             </form>
           </Form>
@@ -366,19 +365,20 @@ function AppointmentCard({ appointment, onEdit, onDelete }: AppointmentCardProps
   const appointmentTime = format(new Date(appointment.dateTime), 'p');
   const endTime = format(new Date(new Date(appointment.dateTime).getTime() + appointment.durationMinutes * 60000), 'p');
   
-  const getStatusColor = (status: AppointmentStatus) => {
+  const getStatusInfo = (status: AppointmentStatus): { text: string, color: string } => {
     switch(status) {
-      case 'SCHEDULED': return 'bg-blue-500';
-      case 'COMPLETED': return 'bg-green-500';
-      case 'CANCELED': return 'bg-red-500';
-      case 'RESCHEDULED': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
+      case 'SCHEDULED': return { text: 'Programada', color: 'bg-blue-500' };
+      case 'COMPLETED': return { text: 'Completada', color: 'bg-green-500' };
+      case 'CANCELED': return { text: 'Cancelada', color: 'bg-red-500' };
+      case 'RESCHEDULED': return { text: 'Reprogramada', color: 'bg-yellow-500' };
+      default: return { text: 'Desconocido', color: 'bg-gray-500' };
     }
   };
+  const statusInfo = getStatusInfo(appointment.status);
 
   return (
-    <Card className="overflow-hidden shadow-sm">
-      <div className={`w-2 h-full absolute left-0 top-0 ${getStatusColor(appointment.status)}`}></div>
+    <Card className="overflow-hidden shadow-sm relative">
+      <div className={`w-2 h-full absolute left-0 top-0 ${statusInfo.color}`}></div>
       <CardHeader className="pl-5 pb-2 flex flex-row items-start justify-between">
         <div>
           <CardTitle className="text-lg">{appointment.patientFullName}</CardTitle>
@@ -386,17 +386,17 @@ function AppointmentCard({ appointment, onEdit, onDelete }: AppointmentCardProps
             <Clock className="h-3 w-3" /> {appointmentTime} - {endTime} ({appointment.durationMinutes} min)
           </CardDescription>
         </div>
-        <span className={`px-2 py-1 text-xs rounded-full text-white ${getStatusColor(appointment.status)}`}>
-            {appointment.status}
+        <span className={`px-2 py-1 text-xs rounded-full text-white ${statusInfo.color}`}>
+            {statusInfo.text}
         </span>
       </CardHeader>
       <CardContent className="pl-5 pt-0 pb-3">
-        {appointment.reason && <p className="text-sm text-muted-foreground">Reason: {appointment.reason}</p>}
-        <p className="text-xs text-muted-foreground">Doctor: {appointment.doctorName || 'N/A'}</p>
+        {appointment.reason && <p className="text-sm text-muted-foreground">Motivo: {appointment.reason}</p>}
+        <p className="text-xs text-muted-foreground">Médico: {appointment.doctorName || 'N/A'}</p>
       </CardContent>
       <CardFooter className="pl-5 pb-3 flex justify-end gap-2">
-        <Button variant="ghost" size="sm" onClick={onEdit}><Edit className="mr-1 h-4 w-4" /> Edit</Button>
-        <Button variant="ghost" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive/90"><Trash2 className="mr-1 h-4 w-4" /> Delete</Button>
+        <Button variant="ghost" size="sm" onClick={onEdit}><Edit className="mr-1 h-4 w-4" /> Editar</Button>
+        <Button variant="ghost" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive/90"><Trash2 className="mr-1 h-4 w-4" /> Eliminar</Button>
       </CardFooter>
     </Card>
   );

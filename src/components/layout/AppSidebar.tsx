@@ -18,13 +18,13 @@ import {
 import type { UserRole } from '@/types';
 import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
-import { useRouter } from 'next/navigation'; // Added for logout
+import { useRouter } from 'next/navigation'; 
 
 const USER_ROLE_KEY = 'currentUserRole';
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const router = useRouter(); // Added for logout
+  const router = useRouter(); 
   const [currentUserRole, setCurrentUserRole] = useState<UserRole | undefined>(undefined);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function AppSidebar() {
       if (storedRole && ['DOCTOR', 'PATIENT', 'ADMIN'].includes(storedRole)) {
         setCurrentUserRole(storedRole);
       } else {
-        setCurrentUserRole('PATIENT'); // Default to PATIENT or a guest role if nothing/invalid is stored
+        setCurrentUserRole('PATIENT'); 
       }
     }
   }, []);
@@ -44,20 +44,16 @@ export function AppSidebar() {
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(USER_ROLE_KEY);
+      localStorage.removeItem('currentUserData'); // Also remove user data
     }
-    setCurrentUserRole(undefined); // Or your default guest role
+    setCurrentUserRole(undefined); 
     router.push('/login');
   };
 
   if (currentUserRole === undefined && typeof window !== 'undefined') {
-    // Still loading role from localStorage or it's not set
-    // You might want to show a loading state or a default sidebar
-    // For simplicity, returning null or a minimal sidebar until role is determined.
-    // Or redirect to login if no role and not on login page.
     if (pathname !== '/login' && pathname !== '/register') {
-       // router.push('/login'); // Potentially redirect if no role is found
+       // router.push('/login'); 
     }
-    // return null; // Or a loading skeleton for the sidebar
   }
 
 
@@ -76,7 +72,7 @@ export function AppSidebar() {
       <SidebarContent className="flex-1 overflow-y-auto p-2">
         <SidebarMenu>
           {itemsToDisplay.map((item) => (
-            !item.isFooter && ( // Render only non-footer items here
+            !item.isFooter && ( 
               <SidebarMenuItem key={item.label}>
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
@@ -98,7 +94,6 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-2 border-t border-sidebar-border">
          <SidebarMenu>
-            {/* Logout Button */}
             <SidebarMenuItem>
                 <SidebarMenuButton
                 onClick={handleLogout}

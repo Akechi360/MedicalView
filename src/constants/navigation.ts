@@ -9,79 +9,63 @@ export interface NavItem {
   icon: LucideIcon;
   group?: string;
   roles?: UserRole[]; 
-  isFooter?: boolean; // To distinguish footer items like logout
+  isFooter?: boolean; 
 }
 
 const allNavItems: NavItem[] = [
   {
     href: '/dashboard',
-    label: 'Dashboard',
+    label: 'Panel Principal',
     icon: LayoutDashboard,
   },
   {
     href: '/patients',
-    label: 'Patients',
+    label: 'Pacientes',
     icon: Users,
     roles: ['DOCTOR', 'ADMIN'],
   },
   {
     href: '/appointments',
-    label: 'Appointments',
+    label: 'Citas',
     icon: CalendarDays,
-    roles: ['DOCTOR', 'PATIENT', 'ADMIN'], // Allow Admin to see all appointments too
+    roles: ['DOCTOR', 'PATIENT', 'ADMIN'], 
   },
   {
     href: '/my-appointments', 
-    label: 'My Appointments',
+    label: 'Mis Citas',
     icon: CalendarDays,
     roles: ['PATIENT'],
   },
   {
     href: '/my-medical-records',
-    label: 'My Medical Records',
+    label: 'Mi Historial Médico',
     icon: FileText,
     roles: ['PATIENT'],
   },
   {
     href: '/ai-diagnosis',
-    label: 'AI Diagnosis',
+    label: 'Diagnóstico IA',
     icon: Brain,
     roles: ['DOCTOR', 'ADMIN'],
   },
-  // Admin specific routes
   {
     href: '/admin/users',
-    label: 'User Management',
+    label: 'Gestión de Usuarios',
     icon: Users,
-    roles: ['ADMIN'],
+    roles: ['DOCTOR','ADMIN'], // DOCTOR also has this privilege now
   },
   {
     href: '/admin/settings',
-    label: 'System Settings',
-    icon: Settings, // Using generic settings icon for now
-    roles: ['ADMIN'],
+    label: 'Configuración Sistema',
+    icon: Settings, 
+    roles: ['DOCTOR','ADMIN'], // DOCTOR also has this privilege now
   },
   {
     href: '/admin/logs',
-    label: 'Audit Logs',
-    icon: FileText, // Using generic file text icon for now
-    roles: ['ADMIN'],
+    label: 'Registros de Auditoría',
+    icon: FileText, 
+    roles: ['DOCTOR','ADMIN'], // DOCTOR also has this privilege now
   },
-  // Example for a Profile link, could be visible to all logged-in users
-  // {
-  //   href: '/profile',
-  //   label: 'Profile',
-  //   icon: UserCircle,
-  //   roles: ['DOCTOR', 'PATIENT', 'ADMIN'], 
-  // },
-  // {
-  //   href: '/login', // Changed from /logout to /login as per sidebar implementation
-  //   label: 'Cerrar Sesión',
-  //   icon: LogOut,
-  //   isFooter: true, // Mark as a footer item
-  //   // Visible to all authenticated roles
-  //   roles: ['DOCTOR', 'PATIENT', 'ADMIN'],
-  // },
 ];
 
 
@@ -90,7 +74,7 @@ export const getNavItems = (userRole?: UserRole): NavItem[] => {
     return allNavItems.filter(item => (!item.roles || item.roles.length === 0) && !item.isFooter);
   }
   return allNavItems.filter(item => {
-    if (item.isFooter) return false; // Footer items handled separately
+    if (item.isFooter) return false; 
     if (!item.roles) return true; 
     return item.roles.includes(userRole);
   });
