@@ -15,9 +15,13 @@ const requiredEnvVars = [
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
-  throw new Error(
-    `Firebase configuration error: Missing required environment variables: ${missingEnvVars.join(', ')}. Please check your .env.local file and ensure all Firebase config values are set.`
-  );
+  const errorMessage = `Firebase configuration error: Missing required environment variables: ${missingEnvVars.join(', ')}. 
+  PLEASE CHECK THE FOLLOWING:
+  1. Ensure you have a '.env.local' file in the ROOT of your project.
+  2. Ensure all Firebase config values (e.g., NEXT_PUBLIC_FIREBASE_API_KEY) are correctly defined in '.env.local'.
+  3. You MUST RESTART your Next.js development server after creating or modifying the '.env.local' file.`;
+  console.error(errorMessage); // Log to console for better visibility
+  throw new Error(errorMessage);
 }
 
 const firebaseConfig = {
